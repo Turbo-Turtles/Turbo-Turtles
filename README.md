@@ -3,7 +3,7 @@
 Project by Georg Forberger, Marvin Menzel, Robert Schneider \
 Teamname: Turbo-Turtles
 
-# Overview
+## Overview
 
 In this project, our goal is to program a TurtleBot3 'burger' to drive without a human operator. \
 To achieve this, we use ROS2 Humble in combination with python and c++.
