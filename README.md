@@ -35,6 +35,7 @@ To achieve a fully autonomous driving bot, we need to implement an automatic tra
 
 ---
 #### <u>Missions:</u>
+[Here](SENSOR_USAGE.md) is how the sensors are used in each mission.
 
 ### 0. Base mission
 - follow lane markings (straight, curves, intersections?, zig zag)
