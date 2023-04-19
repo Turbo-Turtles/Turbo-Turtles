@@ -2,82 +2,82 @@
 
 ## Week 1
 
-### Goals
+- ### Goals
 
-- familiarize with LiDAR
-- familiarize with camera
-- familiarize with IMU
-- start documentation
-- create rosbag
+  - familiarize with LiDAR
+  - familiarize with camera
+  - familiarize with IMU
+  - start documentation
+  - create rosbag
 
-### Progress
+- ### Progress
 
-- familiarize with LiDAR
-- create rosbag
-- start documentation
+  - familiarize with LiDAR
+  - create rosbag
+  - start documentation
 
 ## Week 2
 
-### Goals
+- ### Goals
 
-- familiarize with camera
-- familiarize with IMU
-- concepts for missions
-- document all concepts (discord ones as well)
-- polish documention for exposé
+  - familiarize with camera
+  - familiarize with IMU
+  - concepts for missions
+  - document all concepts (discord ones as well)
+  - polish documention for exposé
 
-### Progress
+- ### Progress
 
 ## Week 3
 
-### Goals
+- ### Goals
 
-### Progress
+- ### Progress
 
 ## Week 4
 
-### Goals
+- ### Goals
 
-### Progress
+- ### Progress
 
 ## Week 5
 
-### Goals
+- ### Goals
 
-### Progress
+- ### Progress
 
 ## Week 6
 
-### Goals
+- ### Goals
 
-### Progress
+- ### Progress
 
 ## Week 7
 
-### Goals
+- ### Goals
 
-### Progress
+- ### Progress
 
 ## Week 8
 
-### Goals
+- ### Goals
 
-### Progress
+- ### Progress
 
 ## Week 9
 
-### Goals
+- ### Goals
 
-### Progress
+- ### Progress
 
 ## Week 10
 
-### Goals
+- ### Goals
 
-### Progress
+- ### Progress
 
 ## Week 11
 
-### Goals
+- ### Goals
 
-### Progress
+- ### Progress
