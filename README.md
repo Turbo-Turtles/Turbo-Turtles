@@ -10,7 +10,8 @@ To achieve this, we use ROS2 Humble in combination with python and c++.
 
 ## Timetable
 
-The schedule is shown [here](https://github.com/orgs/Turbo-Turtles/projects/4/views/2).
+The schedule is shown [here](https://github.com/orgs/Turbo-Turtles/projects/4/views/2). \
+Our weekly progress can be found [here](WEEKLY.md).
 
 ## Objectives
 
