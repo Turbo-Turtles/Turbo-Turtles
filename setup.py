@@ -20,6 +20,7 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
+            'talker = lidar_func.talker_test_node:main',
         ],
     },
 )
