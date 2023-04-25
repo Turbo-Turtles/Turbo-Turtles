@@ -20,7 +20,8 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            'talker = lidar_func.talker_test_node:main',
+            'occ_grid = lidar_func.occupancy_grid_node:main',
+            'stick_to_wall = lidar_func.stick_to_wall:main',
         ],
     },
 )
