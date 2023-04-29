@@ -1,0 +1,20 @@
+{
+    "python.autoComplete.extraPaths": [
+        "/home/robert/turtlebot3_ws/src/install/turtlebot3_interfaces/local/lib/python3.10/dist-packages",
+        "/home/robert/turtlebot3_ws/src/install/motor_driver/lib/python3.10/site-packages",
+        "/home/robert/turtlebot3_ws/src/install/lidar_func/lib/python3.10/site-packages",
+        "/home/robert/ros2_ws/build/my_robot_controller",
+        "/home/robert/ros2_ws/install/my_robot_controller/lib/python3.10/site-packages",
+        "/opt/ros/humble/lib/python3.10/site-packages",
+        "/opt/ros/humble/local/lib/python3.10/dist-packages"
+    ],
+    "python.analysis.extraPaths": [
+        "/home/robert/turtlebot3_ws/src/install/turtlebot3_interfaces/local/lib/python3.10/dist-packages",
+        "/home/robert/turtlebot3_ws/src/install/motor_driver/lib/python3.10/site-packages",
+        "/home/robert/turtlebot3_ws/src/install/lidar_func/lib/python3.10/site-packages",
+        "/home/robert/ros2_ws/build/my_robot_controller",
+        "/home/robert/ros2_ws/install/my_robot_controller/lib/python3.10/site-packages",
+        "/opt/ros/humble/lib/python3.10/site-packages",
+        "/opt/ros/humble/local/lib/python3.10/dist-packages"
+    ]
+}
