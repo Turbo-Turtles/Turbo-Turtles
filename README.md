@@ -1,6 +1,6 @@
 # Sign Detection
 
- - [X] create a trained model
+ - [x] create a trained model
  - [ ] create simple live sign detection
  - [ ] adjust detection for ros2 purpose
  
