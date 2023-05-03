@@ -23,16 +23,33 @@
   - familiarize with camera
   - familiarize with IMU
   - concepts for missions
-  - document all concepts (discord ones as well)
+  - document all concepts
   - polish documention for exposé
 
 - ### Progress
+
+  - familiarize with camera
+  - familiarize with IMU
+  - concepts for missions (not finished completely)
+  - polish documention for exposé
 
 ## Week 3
 
 - ### Goals
 
+  - document all concepts
+  - LiDAR node
+  - camera nodes
+  - familiarize with haar cascade method
+  - motor driver node
+  - custom interfaces
+  - document progress
+
 - ### Progress
+
+  - familiarize with haar cascade method
+  - motor driver node
+  - custom interfaces
 
 ## Week 4
 
