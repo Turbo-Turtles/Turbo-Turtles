@@ -23,6 +23,7 @@ setup(
             'occ_grid = lidar_func.occupancy_grid_node:main',
             'stick_to_wall = lidar_func.stick_to_wall:main',
             'mapping = lidar_func.mapping:main',
+            'go_to_pose = lidar_func.simple_commander_api:main',
         ],
     },
 )
