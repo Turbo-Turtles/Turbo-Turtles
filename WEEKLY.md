@@ -37,13 +37,11 @@
 
 - ### Goals
 
-  - document all concepts
   - LiDAR node
   - camera nodes
   - familiarize with haar cascade method
   - motor driver node
   - custom interfaces
-  - document progress
 
 - ### Progress
 
@@ -54,6 +52,11 @@
 ## Week 4
 
 - ### Goals
+
+  - LiDAR node
+  - camera nodes
+  - start implementing LiDAR SLAM and Navigation
+  - start implementing basic camera vision
 
 - ### Progress
 
