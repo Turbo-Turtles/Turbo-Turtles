@@ -25,6 +25,7 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
+            'single_goal_nav = ' + package_name + '.single_goal_nav:main',
         ],
     },
 )
