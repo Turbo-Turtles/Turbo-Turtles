@@ -3,8 +3,10 @@
 <package format="3">
   <name>lidar_navigation</name>
   <version>0.0.0</version>
-  <description>TODO: Package description</description>
-  <maintainer email="robert@mi-s.de">robert</maintainer>
+  <description>
+  Reads inputs from LiDAR scanner and uses this information to navigate.
+  </description>
+  <maintainer email="robert@mi-s.de">Robert Schneider</maintainer>
   <license>TODO: License declaration</license>
 
   <test_depend>ament_copyright</test_depend>
