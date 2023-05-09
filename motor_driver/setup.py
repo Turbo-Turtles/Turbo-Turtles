@@ -15,11 +15,12 @@ setup(
     zip_safe=True,
     maintainer='robert',
     maintainer_email='robert@mi-s.de',
-    description='TODO: Package description',
+    description='converts simple inputs into output format for the robot',
     license='TODO: License declaration',
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
+            'motor_driver_node = motor_driver.motor_driver_node:main',
         ],
     },
 )
