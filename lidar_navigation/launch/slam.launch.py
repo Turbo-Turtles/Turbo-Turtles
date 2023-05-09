@@ -9,19 +9,17 @@ def generate_launch_description():
     config_dir = os.path.join(get_package_share_directory('lidar_navigation'),'config')
     map_file = os.path.join(config_dir, 'tb3_map.yaml')
     param_file = os.path.join(config_dir, 'burger_params.yaml')
-    rviz_config_dir = os.path.join(config_dir, 'navigation.rviz')
+    rviz_file = os.path.join(config_dir, 'navigation.rviz')
 
     return LaunchDescription([
 
         IncludeLaunchDescription(
-            PythonLaunchDescriptionSource([get_package_share_directory('turtlebot3_gazebo'), '/launch', '/turtlebot3_world.launch.py'])
-        ),
-
-        IncludeLaunchDescription(
             PythonLaunchDescriptionSource([get_package_share_directory('nav2_bringup'), '/launch', '/bringup_launch.py']),
             launch_arguments={
+                'slam':'True',
                 'map':map_file,
-                'params_file':param_file
+                'use_sim_time':'False',
+                'params_file':param_file,
             }.items(),
         ),
 
@@ -31,7 +29,7 @@ def generate_launch_description():
             name='rviz2_node',
             output='screen',
             arguments=[
-                '-d', rviz_config_dir,
+                '-d', rviz_file,
             ]
         )
     ])
