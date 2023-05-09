@@ -55,8 +55,10 @@
 
   - LiDAR node
   - camera nodes
+  - training haar cascade model
   - start implementing LiDAR SLAM and Navigation
   - start implementing basic camera vision
+  - meeting to review progress
 
 - ### Progress
 
