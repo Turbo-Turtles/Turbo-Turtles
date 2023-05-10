@@ -57,14 +57,28 @@
   - camera nodes
   - training haar cascade model
   - start implementing LiDAR SLAM and Navigation
-  - start implementing basic camera vision
+  - start implementing lane detection/following
   - meeting to review progress
 
 - ### Progress
 
+  - ~~LiDAR node~~
+  - ~~camera nodes~~ (both put on halt <- currently not worthwhile, so they where delayed)
+  - training haar cascade model
+  - start implementing LiDAR SLAM and Navigation
+  - meeting to review progress
+
+  - start implementing lane detection/following **(missing)**
+
 ## Week 5
 
 - ### Goals
+
+  - implement concepts for missions:
+    - lane following
+    - sign detection
+    - get through tunnel
+    - get through construction site
 
 - ### Progress
 
