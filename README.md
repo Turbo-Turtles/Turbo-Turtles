@@ -1,8 +1,5 @@
-# Sign Detection
+# Training Sign Detection
 
- - [x] create a trained model
- - [ ] create simple live sign detection
- - [ ] adjust detection for ros2 purpose
- 
- - [X] familiarize with HAAR cascades
- - [ ] create HAAR cascade detection for all signs
+- [ ] sort images into folders
+- [ ] create samples
+- [ ] train cascades
