@@ -14,41 +14,59 @@
 # limitations under the License.
 
 from geometry_msgs.msg import PoseStamped
+
 from nav2_simple_commander.robot_navigator import BasicNavigator, TaskResult
+
+from nav_msgs.msg import Odometry
+
 import rclpy
+from rclpy.node import Node
 from rclpy.duration import Duration
 
-"""
-Basic navigation demo to go to pose.
-"""
 
-"""
-Start location turtlebot3_world
+class PositionListener(Node):
+    def __init__(self):
+        super().__init__("tf2_frame_listener")
 
-x: 0.044923268258571625
-y: -0.004123002290725708
+        self.x = 0.0
+        self.y = 0.0
 
-Our goal location turtlebot3_world
+        qos_policy = rclpy.qos.QoSProfile(reliability=rclpy.qos.ReliabilityPolicy.BEST_EFFORT,
+                                          history=rclpy.qos.HistoryPolicy.KEEP_LAST,
+                                          depth=1)
 
-x: 2.395333766937256
-y: -1.3507534265518188
-"""
+        self.odom_sub_ = self.create_subscription(
+            Odometry,
+            'odom',
+            self.listener_callback,
+            qos_profile=qos_policy,
+        )
 
+    def listener_callback(self, msg):
+        self.x = msg.pose.pose.position.x
+        self.y = msg.pose.pose.position.y
+
+    def get_position(self):
+        return self.x, self.y
 
 def main():
     rclpy.init()
+    get_initial_pose = PositionListener()
+    rclpy.spin_once(get_initial_pose)
+    initial_x, initial_y = get_initial_pose.get_position()
+    get_initial_pose.destroy_node()
 
     navigator = BasicNavigator()
 
     # Set our demo's initial pose
-    # initial_pose = PoseStamped()
-    # initial_pose.header.frame_id = 'map'
-    # initial_pose.header.stamp = navigator.get_clock().now().to_msg()
-    # initial_pose.pose.position.x = 0.04
-    # initial_pose.pose.position.y = 0.00
-    # initial_pose.pose.orientation.z = 0.0
-    # initial_pose.pose.orientation.w = 1.0
-    # navigator.setInitialPose(initial_pose)
+    initial_pose = PoseStamped()
+    initial_pose.header.frame_id = 'map'
+    initial_pose.header.stamp = navigator.get_clock().now().to_msg()
+    initial_pose.pose.position.x = initial_x
+    initial_pose.pose.position.y = initial_y
+    initial_pose.pose.orientation.z = 0.0
+    initial_pose.pose.orientation.w = 1.0
+    navigator.setInitialPose(initial_pose)
 
     # Activate navigation, if not autostarted. This should be called after setInitialPose()
     # or this will initialize at the origin of the map and update the costmap with bogus readings.
@@ -70,8 +88,8 @@ def main():
     goal_pose = PoseStamped()
     goal_pose.header.frame_id = 'map'
     goal_pose.header.stamp = navigator.get_clock().now().to_msg()
-    goal_pose.pose.position.x = 1.0
-    goal_pose.pose.position.y = -0.5
+    goal_pose.pose.position.x = initial_x + 1
+    goal_pose.pose.position.y = initial_y
     goal_pose.pose.orientation.z = 0.0
     goal_pose.pose.orientation.w = 1.0
 
@@ -117,6 +135,7 @@ def main():
         print('Goal has an invalid return status!')
 
     navigator.lifecycleShutdown()
+    rclpy.shutdown()
 
     exit(0)
 
