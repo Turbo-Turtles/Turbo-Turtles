@@ -1,7 +1,7 @@
 import cv2
 
 # Stop Sign Cascade Classifier xml
-stop_sign = cv2.CascadeClassifier("/home/marvin/Documents/robotics-project/Turbo-Turtles/HAAR_cascade/cascade_stop_sign.xml")
+stop_sign = cv2.CascadeClassifier('/home/marvin/Documents/robotics-project/Turbo-Turtles/HAAR_cascade/example/cascade_stop_sign.xml')
 
 cap = cv2.VideoCapture(1)
 
