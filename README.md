@@ -8,6 +8,14 @@ Teamname: Turbo-Turtles
 In this project, our goal is to program a TurtleBot3 'burger' to drive without a human operator. \
 To achieve this, we use ROS2 Humble in combination with python and c++.
 
+## Team
+
+| Team Member  | General Field of Activity |
+| ------------- | ------------- |
+| Georg Forberger  | Lane Following  |
+| Marvin Menzel  | Sign Detection  |
+| Robert Schneider  | LiDAR Navigation  |
+
 ## Timetable
 
 The schedule is shown [here](https://github.com/orgs/Turbo-Turtles/projects/4/views/2). \
