@@ -1,10 +1,10 @@
 import cv2
-from matplotlib import pyplot as plt
+#from matplotlib import pyplot as plt
 
-cap = cv2.VideoCapture(1)
+cap = cv2.VideoCapture(0)
 
 def take_photo():
-    cap = cv2.VideoCapture(1)
+    cap = cv2.VideoCapture(0)
     ret, frame = cap.read()
     cv2.imwrite('photo.jpg', frame)
     cap.release()
