@@ -63,7 +63,7 @@ def main():
 
     navigator = BasicNavigator()
 
-    # Set our demo's initial pose
+    # set initial pose
     initial_pose = PoseStamped()
     initial_pose.header.frame_id = 'map'
     initial_pose.header.stamp = navigator.get_clock().now().to_msg()
@@ -73,35 +73,18 @@ def main():
     initial_pose.pose.orientation.w = 1.0
     navigator.setInitialPose(initial_pose)
 
-    # Activate navigation, if not autostarted. This should be called after setInitialPose()
-    # or this will initialize at the origin of the map and update the costmap with bogus readings.
-    # If autostart, you should `waitUntilNav2Active()` instead.
-    # navigator.lifecycleStartup()
-
-    # Wait for navigation to fully activate, since autostarting nav2
-    # navigator.waitUntilNav2Active()
-
-    # If desired, you can change or load the map as well
-    # navigator.changeMap('/path/to/map.yaml')
-
     # You may use the navigator to clear or obtain costmaps
     # navigator.clearAllCostmaps()  # also have clearLocalCostmap() and clearGlobalCostmap()
     # global_costmap = navigator.getGlobalCostmap()
     # local_costmap = navigator.getLocalCostmap()
 
-    # Go to our demos first goal pose
-    goal_pose = PoseStamped()
-    goal_pose.header.frame_id = 'map'
-    goal_pose.header.stamp = navigator.get_clock().now().to_msg()
-    goal_pose.pose.position.x = initial_x + 1
-    goal_pose.pose.position.y = initial_y
-    goal_pose.pose.orientation.z = 0.0
-    goal_pose.pose.orientation.w = 1.0
+    # set goalpose(s)
 
     # sanity check a valid path exists
     # path = navigator.getPath(initial_pose, goal_pose)
 
-    navigator.goToPose(goal_pose)
+    # use navigation functions to chooce pathing algorithm
+    # navigator.goToPose(goal_pose)
 
     i = 0
     while not navigator.isTaskComplete():
