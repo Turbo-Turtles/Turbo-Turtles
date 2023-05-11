@@ -1,5 +1,5 @@
 # Training Sign Detection
 
 - [X] sort images into folders
-- [ ] create samples
+- [X] create samples
 - [ ] train cascades
