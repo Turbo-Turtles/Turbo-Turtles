@@ -14,15 +14,15 @@
 # limitations under the License.
 
 from geometry_msgs.msg import PoseStamped
-
 from nav2_simple_commander.robot_navigator import BasicNavigator, TaskResult
-
-from nav_msgs.msg import Odometry
-
 import rclpy
 from rclpy.node import Node
 from rclpy.duration import Duration
+from nav_msgs.msg import Odometry
 
+"""
+Basic navigation demo to go to poses.
+"""
 
 class PositionListener(Node):
     def __init__(self):
@@ -52,6 +52,7 @@ class PositionListener(Node):
 
     def get_position(self):
         return self.x, self.y, self.z, self.w
+
 
 def main():
     rclpy.init()
@@ -88,19 +89,31 @@ def main():
     # global_costmap = navigator.getGlobalCostmap()
     # local_costmap = navigator.getLocalCostmap()
 
-    # Go to our demos first goal pose
-    goal_pose = PoseStamped()
-    goal_pose.header.frame_id = 'map'
-    goal_pose.header.stamp = navigator.get_clock().now().to_msg()
-    goal_pose.pose.position.x = initial_x + 1
-    goal_pose.pose.position.y = initial_y
-    goal_pose.pose.orientation.z = initial_z
-    goal_pose.pose.orientation.w = initial_w
+    # array with goal poses
+    poses = [
+        [0.5, 0.0],
+        [0.5, 0.5],
+        [1.0, 0.5],
+        [1.0, 1.0],
+    ]
+
+    # set our demo's goal poses
+    goal_poses = []
+
+    for i in range(len(poses)):
+        goal_pose = PoseStamped()
+        goal_pose.header.frame_id = 'map'
+        goal_pose.header.stamp = navigator.get_clock().now().to_msg()
+        goal_pose.pose.position.x = initial_x + poses[i][0]
+        goal_pose.pose.position.y = initial_y + poses[i][1]
+        goal_pose.pose.orientation.w = initial_w
+        goal_pose.pose.orientation.z = initial_z
+        goal_poses.append(goal_pose)
 
     # sanity check a valid path exists
-    # path = navigator.getPath(initial_pose, goal_pose)
+    # path = navigator.getPathThroughPoses(initial_pose, goal_poses)
 
-    navigator.goToPose(goal_pose)
+    navigator.goThroughPoses(goal_poses)
 
     i = 0
     while not navigator.isTaskComplete():
@@ -123,9 +136,15 @@ def main():
                 navigator.cancelTask()
 
             # Some navigation request change to demo preemption
-            if Duration.from_msg(feedback.navigation_time) > Duration(seconds=18.0):
-                goal_pose.pose.position.x = -3.0
-                navigator.goToPose(goal_pose)
+            # if Duration.from_msg(feedback.navigation_time) > Duration(seconds=35.0):
+            #     goal_pose4 = PoseStamped()
+            #     goal_pose4.header.frame_id = 'map'
+            #     goal_pose4.header.stamp = navigator.get_clock().now().to_msg()
+            #     goal_pose4.pose.position.x = -5.0
+            #     goal_pose4.pose.position.y = -4.75
+            #     goal_pose4.pose.orientation.w = 0.707
+            #     goal_pose4.pose.orientation.z = 0.707
+            #     navigator.goThroughPoses([goal_pose4])
 
     # Do something depending on the return code
     result = navigator.getResult()
@@ -139,7 +158,6 @@ def main():
         print('Goal has an invalid return status!')
 
     navigator.lifecycleShutdown()
-    rclpy.shutdown()
 
     exit(0)
 

@@ -1,17 +1,4 @@
 #! /usr/bin/env python3
-# Copyright 2021 Samsung Research America
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
 
 from geometry_msgs.msg import PoseStamped
 
@@ -24,14 +11,14 @@ from rclpy.node import Node
 from rclpy.duration import Duration
 
 
+# classes start
+
 class PositionListener(Node):
     def __init__(self):
         super().__init__("tf2_frame_listener")
 
         self.x = 0.0
         self.y = 0.0
-        self.z = 0.0
-        self.w = 0.0
 
         qos_policy = rclpy.qos.QoSProfile(reliability=rclpy.qos.ReliabilityPolicy.BEST_EFFORT,
                                           history=rclpy.qos.HistoryPolicy.KEEP_LAST,
@@ -47,17 +34,31 @@ class PositionListener(Node):
     def listener_callback(self, msg):
         self.x = msg.pose.pose.position.x
         self.y = msg.pose.pose.position.y
-        self.z = msg.pose.pose.orientation.z
-        self.w = msg.pose.pose.orientation.w
 
     def get_position(self):
-        return self.x, self.y, self.z, self.w
+        return self.x, self.y
+
+class TunnelMission(Node):
+    def __init__(self):
+        super().__init__("tunnel_mission")
+
+        self.goal_pub_ = self.create_publisher(
+
+        )
+
+# classes end
+
+# functions start
+
+# functions end
+
+# main
 
 def main():
     rclpy.init()
     get_initial_pose = PositionListener()
     rclpy.spin_once(get_initial_pose)
-    initial_x, initial_y, initial_z, initial_w = get_initial_pose.get_position()
+    initial_x, initial_y = get_initial_pose.get_position()
     get_initial_pose.destroy_node()
 
     navigator = BasicNavigator()
@@ -68,8 +69,8 @@ def main():
     initial_pose.header.stamp = navigator.get_clock().now().to_msg()
     initial_pose.pose.position.x = initial_x
     initial_pose.pose.position.y = initial_y
-    initial_pose.pose.orientation.z = initial_z
-    initial_pose.pose.orientation.w = initial_w
+    initial_pose.pose.orientation.z = 0.0
+    initial_pose.pose.orientation.w = 1.0
     navigator.setInitialPose(initial_pose)
 
     # Activate navigation, if not autostarted. This should be called after setInitialPose()
@@ -94,8 +95,8 @@ def main():
     goal_pose.header.stamp = navigator.get_clock().now().to_msg()
     goal_pose.pose.position.x = initial_x + 1
     goal_pose.pose.position.y = initial_y
-    goal_pose.pose.orientation.z = initial_z
-    goal_pose.pose.orientation.w = initial_w
+    goal_pose.pose.orientation.z = 0.0
+    goal_pose.pose.orientation.w = 1.0
 
     # sanity check a valid path exists
     # path = navigator.getPath(initial_pose, goal_pose)

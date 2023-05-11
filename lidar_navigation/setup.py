@@ -28,6 +28,8 @@ setup(
             'single_goal_nav = ' + package_name + '.single_goal_nav:main',
             'get_robot_pos = ' + package_name + '.get_robot_position:main',
             'drive_1m = ' + package_name + '.drive_1m:main',
+            'waypoint_follower = ' + package_name + '.waypoint_follower:main',
+            'waypoint_nav = ' + package_name + '.waypoint_nav:main',
         ],
     },
 )
