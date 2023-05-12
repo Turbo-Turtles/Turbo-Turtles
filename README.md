@@ -8,6 +8,14 @@ Teamname: Turbo-Turtles
 In this project, our goal is to program a TurtleBot3 'burger' to drive without a human operator. \
 To achieve this, we use ROS2 Humble in combination with python and c++.
 
+## Team
+
+| Team Member  | General Field of Activity |
+| ------------- | ------------- |
+| Georg Forberger  | Lane Following  |
+| Marvin Menzel  | Sign Detection  |
+| Robert Schneider  | LiDAR Navigation  |
+
 ## Timetable
 
 The schedule is shown [here](https://github.com/orgs/Turbo-Turtles/projects/4/views/2). \
@@ -53,23 +61,20 @@ traffic light
 left or right
 - search traffic sign
 - detect traffic sign
-- left arrow: turn left
-- right arrow: turn right 
+- left arrow: turn left procedure
+- right arrow: turn right procedure
 
 ### 3. Construction mission
 obstacle avoidance
-- search obstacle
-- detect obstacle
-- avoidance procedure (to be specified)
-- needs to find obstacles:
-	- either 3 times (hardcoded amount)
-	- or until next section is detected
+- map obstacles with SLAM
+- avoidance procedure:
+  - use LiDAR navigation2 stack to follow a path through the obstacles
 
 ### 4. Parking mission
 park on free slot
 - search traffic sign
 - detect traffic sign
-- left arrow: turn left
+- left arrow: turn left procedure
 - drive to parking slots/markings
 - search other bot/obstacle
 - detect other bot/obstacle
@@ -84,4 +89,5 @@ barrier / blocked lane
 
 ### 6. Tunnel mission
 enter and leave tunnel
-- (to be specified)
+- map tunnel with SLAM
+- use LiDAR navigation2 stack to drive to exit

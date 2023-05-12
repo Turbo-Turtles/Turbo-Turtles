@@ -3,7 +3,9 @@
 <package format="3">
   <name>turtlebot3_interfaces</name>
   <version>0.0.0</version>
-  <description>TODO: Package description</description>
+  <description>
+  Custom Interfaces (msg, srv) created for this project.
+  </description>
   <maintainer email="robert@mi-s.de">robert</maintainer>
   <license>TODO: License declaration</license>
 

@@ -3,8 +3,10 @@
 <package format="3">
   <name>motor_driver</name>
   <version>0.0.0</version>
-  <description>TODO: Package description</description>
-  <maintainer email="robert@mi-s.de">robert</maintainer>
+  <description>
+  converts simple inputs into output format for the robot
+  </description>
+  <maintainer email="robert@mi-s.de">Robert Schneider</maintainer>
   <license>TODO: License declaration</license>
 
   <test_depend>ament_copyright</test_depend>
