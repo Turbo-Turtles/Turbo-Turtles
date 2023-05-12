@@ -11,7 +11,7 @@ from rclpy.node import Node
 from rclpy.duration import Duration
 
 from turtlebot3_interfaces.msg import Mission
-
+from sensor_msgs.msg import LaserScan
 
 # classes start
 
@@ -44,6 +44,33 @@ class PositionListener(Node):
     def get_position(self):
         return self.x, self.y, self.z, self.w
 
+class GetMinDist(Node):
+    def __init__(self, area):
+        super().__init__("get_min_range")
+
+        self.area = area
+        self.min_dist = 100.0
+
+        qos_policy = rclpy.qos.QoSProfile(reliability=rclpy.qos.ReliabilityPolicy.BEST_EFFORT,
+                                          history=rclpy.qos.HistoryPolicy.KEEP_LAST,
+                                          depth=1)
+        
+        self.odom_sub_ = self.create_subscription(
+            LaserScan,
+            'scan',
+            self.listener_callback,
+            qos_profile=qos_policy,
+        )
+
+    def listener_callback(self, msg):
+        for item in msg.ranges[self.area:self.area+90]:
+            if item != 0.0 and item < self.min_dist:
+                self.min_dist = item
+
+    def get_min_dist(self):
+        return self.min_dist
+
+
 class TunnelMission(Node):
     def __init__(self):
         super().__init__("tunnel_mission")
@@ -51,7 +78,14 @@ class TunnelMission(Node):
         self.active = False
 
         # initial coordinates, to base the goal location of
-        x, y, z, w = self.get_location()
+        self.x, self.y, self.z, self.w = self.get_location()
+
+        # create goal location
+        self.goal_dist = self.get_dist(225)
+        self.goal_x = self.x - self.goal_dist
+        self.goal_y = self.y
+        self.goal_z = self.z
+        self.goal_w = self.w
 
         qos_policy = rclpy.qos.QoSProfile(reliability=rclpy.qos.ReliabilityPolicy.BEST_EFFORT,
                                           history=rclpy.qos.HistoryPolicy.KEEP_LAST,
@@ -130,6 +164,15 @@ class TunnelMission(Node):
         get_current_pose.destroy_node()
 
         return x, y, z, w
+    
+    def get_dist(self, area):
+        # get distances for tunnel mission goals
+        get_dist = GetMinDist(area)
+        rclpy.spin_once(get_dist)
+        min_dist = get_dist.get_min_dist()
+        get_dist.destroy_node()
+
+        return min_dist
 
 # classes end
 
