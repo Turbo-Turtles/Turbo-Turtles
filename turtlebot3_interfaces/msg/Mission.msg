@@ -1,3 +1,3 @@
-# This expresses linear forward (x) and angular turn (z) velocity.
+# This transmits the new mission name
 
 string mission_name
