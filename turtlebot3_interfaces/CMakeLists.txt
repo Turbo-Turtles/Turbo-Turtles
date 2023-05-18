@@ -16,6 +16,7 @@ find_package(rosidl_default_generators REQUIRED)
 rosidl_generate_interfaces(${PROJECT_NAME}
   "msg/Drive.msg"
   "msg/Mission.msg"
+  "srv/MinRange.srv"
 )
 
 if(BUILD_TESTING)

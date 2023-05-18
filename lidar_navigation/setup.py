@@ -30,7 +30,9 @@ setup(
             'drive_1m = ' + package_name + '.drive_1m:main',
             'waypoint_follower = ' + package_name + '.waypoint_follower:main',
             'waypoint_nav = ' + package_name + '.waypoint_nav:main',
+            'get_min_range = ' + package_name + '.get_min_range:main',
             'tunnel_mission_test01 = ' + package_name + '.tunnel_mission_test01:main',
+            'tunnel_mission_test02 = ' + package_name + '.tunnel_mission_test02:main',
         ],
     },
 )
