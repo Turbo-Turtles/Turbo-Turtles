@@ -63,7 +63,7 @@
 - ### Progress
 
   - ~~LiDAR node~~
-  - ~~camera nodes~~ (both put on halt <- currently not worthwhile, so they where delayed)
+  - ~~camera nodes~~ (both put on halt <- (currently) not worthwhile, so they where delayed indefinitely)
   - training haar cascade model
   - start implementing LiDAR SLAM and Navigation
   - meeting to review progress
@@ -82,9 +82,20 @@
 
 - ### Progress
 
+  - implement concepts for missions:
+    - sign detection (only stop sign, not reliable)
+    - get through tunnel
+
 ## Week 6
 
 - ### Goals
+
+  - implement concepts for missions:
+    - lane following
+    - sign detection (other signs, improve reliability)
+    - get through construction site
+  - polish mid term presentation
+  - meeting to review progress
 
 - ### Progress
 
