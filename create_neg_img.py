@@ -8,14 +8,14 @@ from PIL import Image
 
 
 def normalize_images():
-    num_img = 0
-    for i in os.listdir("C:/Users/marvi/OneDrive/Dokumente/Studium/4. Semester/Robotik/Turbo-Turtles/neg_img/"):
+    num_img = 1122
+    for i in os.listdir("C:/Users/marvi/OneDrive/Dokumente/Studium/4. Semester/Robotik/Turbo-Turtles/images/"):
         try:
             print(i)
-            img = cv2.imread("C:/Users/marvi/OneDrive/Dokumente/Studium/4. Semester/Robotik/Turbo-Turtles/neg_img/" + str(num_img) + ".jpg", cv2.IMREAD_GRAYSCALE)
+            img = cv2.imread("C:/Users/marvi/OneDrive/Dokumente/Studium/4. Semester/Robotik/Turbo-Turtles/images/" + str(num_img) + ".jpg", cv2.IMREAD_GRAYSCALE)
             resized_img = cv2.resize(img, (100,100))
             #cv2.imshow("img", resized_img)
-            cv2.imwrite("C:/Users/marvi/OneDrive/Dokumente/Studium/4. Semester/Robotik/Turbo-Turtles/ng/" + str(num_img) + ".jpg", resized_img)
+            cv2.imwrite("C:/Users/marvi/OneDrive/Dokumente/Studium/4. Semester/Robotik/Turbo-Turtles/negatives/" + str(num_img) + ".jpg", resized_img)
             #cv2.waitKey(0)
             num_img += 1
 
