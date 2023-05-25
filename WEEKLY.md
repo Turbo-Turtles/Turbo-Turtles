@@ -99,6 +99,12 @@
 
 - ### Progress
 
+  - implement concepts for missions:
+    - lane following (detection working)
+    - sign detection (very good reliability, 5/8 signs trained)
+  - polish mid term presentation
+  - meeting to review progress
+
 ## Week 7
 
 - ### Goals
