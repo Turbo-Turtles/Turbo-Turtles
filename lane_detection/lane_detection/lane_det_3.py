@@ -35,6 +35,7 @@ class LaneDetectionNode(Node):
     cv2.createTrackbar('Val_yellow_min','yellow_threshold',0,255,nothing)
     cv2.createTrackbar('Val_yellow_max','yellow_threshold',0,255,nothing)
 
+    """
     # Set default value for HSV trackbars.
     cv2.setTrackbarPos('Hue_white_min', 'white_threshold', 55)
     cv2.setTrackbarPos('Hue_white_max', 'white_threshold', 110)
@@ -49,39 +50,74 @@ class LaneDetectionNode(Node):
     cv2.setTrackbarPos('Sat_yellow_max','yellow_threshold', 255)
     cv2.setTrackbarPos('Val_yellow_min','yellow_threshold', 205)
     cv2.setTrackbarPos('Val_yellow_max','yellow_threshold', 235)
+    """
+
+
+    """
+    # Set default value for HSV trackbars.
+    cv2.setTrackbarPos('Hue_white_min', 'white_threshold', 55)
+    cv2.setTrackbarPos('Hue_white_max', 'white_threshold', 120)
+    cv2.setTrackbarPos('Sat_white_min', 'white_threshold', 0)
+    cv2.setTrackbarPos('Sat_white_max', 'white_threshold', 70)
+    cv2.setTrackbarPos('Val_white_min', 'white_threshold', 190)
+    cv2.setTrackbarPos('Val_white_max', 'white_threshold', 255)
+
+    cv2.setTrackbarPos('Hue_yellow_min','yellow_threshold', 20)
+    cv2.setTrackbarPos('Hue_yellow_max','yellow_threshold', 65)
+    cv2.setTrackbarPos('Sat_yellow_min','yellow_threshold', 40)
+    cv2.setTrackbarPos('Sat_yellow_max','yellow_threshold', 140)
+    cv2.setTrackbarPos('Val_yellow_min','yellow_threshold', 90)
+    cv2.setTrackbarPos('Val_yellow_max','yellow_threshold', 230)
+    """
+
+    # Set default value for HSV trackbars.
+    cv2.setTrackbarPos('Hue_white_min', 'white_threshold', 10)
+    cv2.setTrackbarPos('Hue_white_max', 'white_threshold', 4)
+    cv2.setTrackbarPos('Sat_white_min', 'white_threshold', 0)
+    cv2.setTrackbarPos('Sat_white_max', 'white_threshold', 4)
+    cv2.setTrackbarPos('Val_white_min', 'white_threshold', 150)
+    cv2.setTrackbarPos('Val_white_max', 'white_threshold', 255)
+
+    cv2.setTrackbarPos('Hue_yellow_min','yellow_threshold', 28)
+    cv2.setTrackbarPos('Hue_yellow_max','yellow_threshold', 32)
+    cv2.setTrackbarPos('Sat_yellow_min','yellow_threshold', 230)
+    cv2.setTrackbarPos('Sat_yellow_max','yellow_threshold', 255)
+    cv2.setTrackbarPos('Val_yellow_min','yellow_threshold', 150)
+    cv2.setTrackbarPos('Val_yellow_max','yellow_threshold', 255)
+
 
     # create trackbars for image cropping
-    cv2.createTrackbar('p1_x','crop_image',0,797,nothing)
-    cv2.createTrackbar('p2_x','crop_image',0,797,nothing)
-    cv2.createTrackbar('p12_y','crop_image',0,596,nothing)
-    cv2.createTrackbar('p3_x','crop_image',0,797,nothing)
-    cv2.createTrackbar('p4_x','crop_image',0,797,nothing)
+    cv2.createTrackbar('p1_x','crop_image',0,100,nothing)
+    cv2.createTrackbar('p2_x','crop_image',0,100,nothing)
+    cv2.createTrackbar('p12_y','crop_image',0,100,nothing)
+    cv2.createTrackbar('p3_x','crop_image',0,100,nothing)
+    cv2.createTrackbar('p4_x','crop_image',0,100,nothing)
 
     # Set default value for image cropping trackbars.
-    cv2.setTrackbarPos('p12_y', 'crop_image', 315)
-    cv2.setTrackbarPos('p2_x', 'crop_image', 797)
-    cv2.setTrackbarPos('p4_x', 'crop_image', 797)
+    cv2.setTrackbarPos('p12_y', 'crop_image', 60)
+    cv2.setTrackbarPos('p2_x', 'crop_image', 100)
+    cv2.setTrackbarPos('p4_x', 'crop_image', 100)
 
 
 
     def __init__(self):
         super().__init__("lane_detection_node_3")
-        self.subscription = self.create_subscription(CompressedImage, "/test_image", self.image_callback, 1) #create image subscriber
+        self.subscription = self.create_subscription(Image, "/camera/image_raw", self.image_callback, 1) #create image subscriber
         self.cv_bridge = CvBridge()
 
         self.publisher = self.create_publisher(Twist, "cmd_vel", 1) #create movement value publisher
 
     
     def image_callback(self, msg):
-        cv_image = self.cv_bridge.compressed_imgmsg_to_cv2(msg, "bgr8")
-        cv2.imshow("origianl", cv_image)
+        cv_image = self.cv_bridge.imgmsg_to_cv2(msg, "bgr8")
+        #__+__cv2.imshow("origianl", cv_image)
         self.get_logger().info("Image recived")
 
         croped = self.crop_image(cv_image)
         result, white_lane, yellow_lane = self.detect_lanes(croped)
 
         # Display the processed image (for visualization purposes)
-        cv2.imshow("Lane_Detection_Result", result)
+        #__+__cv2.imshow("Lane_Detection_Result", result)
         cv2.waitKey(1)
 
     
@@ -89,7 +125,7 @@ class LaneDetectionNode(Node):
 
         if white_lane is not None and yellow_lane is not None:
             # Calculate the center of the lane
-            lane_center = ((white_lane[0][0] + yellow_lane[0][0]) // 2, (white_lane[0][1] + yellow_lane[0][1]) // 2)
+            lane_center = ((white_lane[0][0] + yellow_lane[0][0]) // 2, (white_lane[1][1] + yellow_lane[1][1]) // 2)
 
             # Calculate the deviation from the center of the image
             image_center = cv_image.shape[1] / 2
@@ -97,10 +133,11 @@ class LaneDetectionNode(Node):
 
             # Define control parameters
             kp = 0.1  # Proportional gain
-            velocity = 0.2  # Constant velocity
+            velocity = 0.05  # Constant velocity
 
             # Calculate the desired steering angle based on the deviation and control parameters
-            steering_angle = kp * deviation
+            steering_angle = kp * deviation / 500      #<------- winkel zu klein und zu groß raußfiltern
+            self.get_logger().info(str(steering_angle))
 
             # Create Twist message with desired linear and angular velocities
             twist_msg = Twist()
@@ -111,18 +148,24 @@ class LaneDetectionNode(Node):
             self.publisher.publish(twist_msg)
 
             # Calculate the center lane coordinates
-            center_lane_x = (white_lane[0][0] + yellow_lane[0][0]) // 2
-            center_lane_y = int(((white_lane[1][1] + yellow_lane[1][1]) // 2)*1.5)
+            w1, w2 = white_lane
+            y1, y2 = yellow_lane
+
+            center_lane_x_1 = int((w1[0] + y1[0]) / 2)
+            center_lane_x_2 = int((w2[0] + y2[0]) / 2)
+            center_lane_y = int(w2[1] + y2[1])
 
             # Draw the center lane on the image
-            cv2.line(result, (center_lane_x, center_lane_y), (center_lane_x, cv_image.shape[1]), (0, 0, 255), 5)
+            cv2.line(result, (center_lane_x_2, center_lane_y), (center_lane_x_1, cv_image.shape[1]), (0, 0, 255), 5)
 
             # Display the image with the lanes
-            cv2.imshow("Lane Detection", result)
+            cv2.imshow("Lane Detection driving line", result)
             cv2.waitKey(1)
 
 
     def crop_image(self, image):
+        height, width = image.shape[:2]
+
         p1_x = cv2.getTrackbarPos('p1_x', 'crop_image')
         p2_x = cv2.getTrackbarPos('p2_x', 'crop_image')
         p12_y = cv2.getTrackbarPos('p12_y', 'crop_image')
@@ -133,14 +176,14 @@ class LaneDetectionNode(Node):
     
         # Locate points of the documents
         # or object which you want to transform
-        pts1 = np.float32([[p1_x, p12_y], [p2_x, p12_y],
-                           [p3_x, 596], [p4_x, 596]])
-        pts2 = np.float32([[0, 0],   [797, 0],
-                           [0, 596], [797, 596]])
+        pts1 = np.float32([[((width * p1_x)/100), ((height * p12_y)/100)], [((width * p2_x)/100), ((height * p12_y)/100)],
+                           [((width * p3_x)/100),   height],               [((width * p4_x)/100),   height]])
+        pts2 = np.float32([[0, 0],   [width, 0],
+                           [0, height], [width, height]])
         
         # Apply Perspective Transform Algorithm
         matrix = cv2.getPerspectiveTransform(pts1, pts2)
-        result = cv2.warpPerspective(image, matrix, (797, 596))
+        result = cv2.warpPerspective(image, matrix, (width, height))
         
         # Wrap the transformed image
         cv2.imshow('crop_image', result) # Transformed Capture
@@ -200,29 +243,46 @@ class LaneDetectionNode(Node):
         #__+__cv2.imshow("gray_w", gray)
 
         # Apply Gaussian blur
-        blur = cv2.GaussianBlur(gray, (5, 5), 0)
+        blur = cv2.GaussianBlur(gray, (13, 13), 2) #standard: (15, 15), 0
         #__+__cv2.imshow("blur_w", blur)
 
         # Perform Canny edge detection
-        edges = cv2.Canny(blur, 50, 150)
+        edges = cv2.Canny(blur, 75, 200) #standard: 50, 150
         #__+__cv2.imshow("Canny edge detection_w", edges)
+
+        # Define a region of interest (ROI)
+        height, width = edges.shape[:2]
+        roi_vertices = [
+            (width * 0.2, 0),
+            (width * 0.9, 0),
+            (width, height),
+            (width * 0.8, height)
+        ]
+        mask = np.zeros_like(edges)
+        cv2.fillPoly(mask, np.array([roi_vertices], dtype=np.int32), 255)
+        roi_edges = cv2.bitwise_and(edges, mask)
+        cv2.imshow("roi_edges_w", roi_edges)
 
         # Perform Hough line transformation
         lines = cv2.HoughLinesP(
-            edges,
+            roi_edges,
             rho=1,
             theta=np.pi / 180,
-            threshold=20,
-            minLineLength=20,
-            maxLineGap=300
+            threshold=50,   #standard: 20
+            minLineLength=50, #standard: 20
+            maxLineGap=100   #standard: 300
         )
 
         w_lines = []
-        for line in lines:
-            x1, y1, x2, y2 = line[0]
-            slope = (y2 - y1) / (x2 - x1 + 1e-6)  # Avoid division by zero
-            if slope > 0.5:         # maybe change parameter
-                w_lines.append(line[0])
+
+        try:
+            for line in lines:
+                x1, y1, x2, y2 = line[0]
+                slope = (y2 - y1) / (x2 - x1 + 1e-6)  # Avoid division by zero
+                if slope > 0.5:         # maybe change parameter
+                    w_lines.append(line[0])
+        except:
+            w_lines = []
 
         return w_lines
     
@@ -254,29 +314,45 @@ class LaneDetectionNode(Node):
         #__+__cv2.imshow("gray_y", gray)
 
         # Apply Gaussian blur
-        blur = cv2.GaussianBlur(gray, (5, 5), 0)
+        blur = cv2.GaussianBlur(gray, (13, 13), 1) #standard: (15, 15), 0
         #__+__cv2.imshow("blur_y", blur)
 
         # Perform Canny edge detection
-        edges = cv2.Canny(blur, 50, 150)
+        edges = cv2.Canny(blur, 75, 200) #standard: 50, 150
         #__+__cv2.imshow("Canny edge detection_y", edges)
+
+        # Define a region of interest (ROI)
+        height, width = edges.shape[:2]
+        roi_vertices = [
+            (width * 0.1, 0),
+            (width * 0.8, 0),
+            (width * 0.2, height),
+            (0, height)
+        ]
+        mask = np.zeros_like(edges)
+        cv2.fillPoly(mask, np.array([roi_vertices], dtype=np.int32), 255)
+        roi_edges = cv2.bitwise_and(edges, mask)
+        cv2.imshow("roi_edges_y", roi_edges)
 
         # Perform Hough line transformation
         lines = cv2.HoughLinesP(
-            edges,
+            roi_edges,
             rho=1,
             theta=np.pi / 180,
-            threshold=20,
-            minLineLength=20,
-            maxLineGap=300
+            threshold=50,   #standard: 20
+            minLineLength=50, #standard: 20
+            maxLineGap=100  #standard: 300
         )
 
         y_lines = []
-        for line in lines:
-            x1, y1, x2, y2 = line[0]
-            slope = (y2 - y1) / (x2 - x1 + 1e-6)  # Avoid division by zero
-            if slope < -0.5:         # maybe change parameter
-                y_lines.append(line[0])
+        try:
+            for line in lines:
+                x1, y1, x2, y2 = line[0]
+                slope = (y2 - y1) / (x2 - x1 + 1e-6)  # Avoid division by zero
+                if slope < -0.5:         # maybe change parameter
+                    y_lines.append(line[0])
+        except:
+            y_lines = []
 
         return y_lines
 
