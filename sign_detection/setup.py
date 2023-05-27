@@ -20,6 +20,7 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
+            'sign_detection_node = ' + package_name + '.stop_sign_detection:main'
         ],
     },
 )
