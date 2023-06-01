@@ -109,11 +109,26 @@
 
 - ### Goals
 
+  - implement concepts for missions:
+    - lane following
+    - sign detection
+    - get through construction site
+
 - ### Progress
+
+  - implement concepts for missions:
+    - lane following
+    - sign detection
+    - get through construction site
 
 ## Week 8
 
 - ### Goals
+
+  - implement concepts for missions:
+    - lane following
+    - sign detection
+    - get through construction site
 
 - ### Progress
 
