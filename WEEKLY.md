@@ -110,25 +110,25 @@
 - ### Goals
 
   - implement concepts for missions:
-    - lane following
-    - sign detection
+    - lane following (improve)
+    - sign detection (train remaining signs)
     - get through construction site
 
 - ### Progress
 
   - implement concepts for missions:
-    - lane following
-    - sign detection
-    - get through construction site
+    - sign detection (all trained)
 
 ## Week 8
 
 - ### Goals
 
   - implement concepts for missions:
-    - lane following
-    - sign detection
+    - lane following (improve)
+    - sign detection (more reliability on certain signs)
     - get through construction site
+  - start consolidation of concepts (=> intelligence node; start with lane following and and sign detection?)
+  - meeting to review progress
 
 - ### Progress
 
