@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+<?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
+<package format="3">
+  <name>autorace_simulation</name>
+  <version>0.0.0</version>
+  <description>
+  Gazebo simulation package for the TurtleBot3 AutoRace 2020
+  </description>
+  <maintainer email="robert@mi-s.de">Robert Schneider</maintainer>
+  <license>TODO: License declaration</license>
+    
+  <depend>roscpp</depend>
+  <depend>std_msgs</depend>
+  <depend>sensor_msgs</depend>
+  <depend>geometry_msgs</depend>
+  <depend>nav_msgs</depend>
+  <depend>tf</depend>
+  <depend>gazebo_ros</depend>
+
+  <buildtool_depend>ament_cmake</buildtool_depend>
+
+  <exec_depend>gazebo</exec_depend>
+  <exec_depend>turtlebot3_description</exec_depend>
+
+  <test_depend>ament_lint_auto</test_depend>
+  <test_depend>ament_lint_common</test_depend>
+  
+  <export>
+    <!-- <gazebo_ros gazebo_media_path="${prefix}/models"/> -->
+    <gazebo_ros gazebo_model_path="${prefix}/models"/>
+    <build_type>ament_cmake</build_type>
+  </export>
+</package>
