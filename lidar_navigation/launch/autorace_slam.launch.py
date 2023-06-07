@@ -14,7 +14,7 @@ def generate_launch_description():
     return LaunchDescription([
 
         IncludeLaunchDescription(
-            PythonLaunchDescriptionSource([get_package_share_directory('turtlebot3_gazebo'), '/launch', '/turtlebot3_autorace_2020.launch.py'])
+            PythonLaunchDescriptionSource([get_package_share_directory('autorace_simulation'), '/launch', '/turtlebot3_autorace_2020.launch.py'])
         ),
 
         IncludeLaunchDescription(
