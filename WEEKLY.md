@@ -132,9 +132,22 @@
 
 - ### Progress
 
+  - create local gazebo sim
+  - implement concepts for missions:
+    - lane following (curves(somewhat working), only one line visible)
+    - sign detection
+    - get through construction site
+  - meeting to review progress
+
 ## Week 9
 
 - ### Goals
+
+  - implement concepts for missions:
+    - lane following (improve)
+    - level cross (barrier open/close)
+    - get through construction site
+    - intersection
 
 - ### Progress
 
