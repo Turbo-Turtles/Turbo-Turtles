@@ -2,7 +2,7 @@
 
 ### Explanation
 
-All the important directories explained.
+All the important directories/files explained.
 
 #### <u>config</u>
 
@@ -21,8 +21,6 @@ All the important directories explained.
 
 ---
 
-You need to take care of `package.xml` and `setup.py` aswell.
+For testing purposes:
 
-In `package.xml` you need to keep updating your dependencies, if you use any more libraries.
-
-In `setup.py` you need to set your new python scripts as ros2 executables.
+`ros2 topic pub -1 /mission turtlebot3_interfaces/msg/Mission "{mission_name: 'tunnel'}"`
