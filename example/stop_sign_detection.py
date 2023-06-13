@@ -7,6 +7,8 @@ import cv2
 # right_sign = cv2.CascadeClassifier('example/signs/right_sign.xml')
 # stop_sign = cv2.CascadeClassifier('example/signs/stop_sign.xml')
 # tunnel_sign = cv2.CascadeClassifier('example/signs/tunnel_sign.xml')
+
+# sign = cv2.CascadeClassifier('example/signs/crossing_sign2.xml')
 sign = cv2.CascadeClassifier('cascade/cascade.xml')
 
 
