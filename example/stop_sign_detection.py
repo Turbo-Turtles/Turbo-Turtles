@@ -1,123 +1,139 @@
 import cv2
 
 # Sign Cascade Classifier xml
-# crossing_sign = cv2.CascadeClassifier('example/signs/crossing_sign.xml')
-# left_sign = cv2.CascadeClassifier('example/signs/left_sign.xml')
-# parking_sign = cv2.CascadeClassifier('example/signs/parking_sign.xml')
-# right_sign = cv2.CascadeClassifier('example/signs/right_sign.xml')
-# stop_sign = cv2.CascadeClassifier('example/signs/stop_sign.xml')
-# tunnel_sign = cv2.CascadeClassifier('example/signs/tunnel_sign.xml')
+construction_sign = cv2.CascadeClassifier('example/signs/construction.xml')
+crossing_sign = cv2.CascadeClassifier('example/signs/crossing_sign.xml')
+left_sign = cv2.CascadeClassifier('example/signs/left.xml')
+parking_sign = cv2.CascadeClassifier('example/signs/parking.xml')
+right_sign = cv2.CascadeClassifier('example/signs/right.xml')
+stop_sign = cv2.CascadeClassifier('example/signs/stop.xml')
+tunnel_sign = cv2.CascadeClassifier('example/signs/tunnel.xml')
+train_sign = cv2.CascadeClassifier('example/signs/train.xml')
 
 # sign = cv2.CascadeClassifier('example/signs/crossing_sign2.xml')
-sign = cv2.CascadeClassifier('cascade/cascade.xml')
+#sign = cv2.CascadeClassifier('cascade/cascade.xml')
 
 
 cap = cv2.VideoCapture(0)
 
-i = 1
+i = 40
 
 while cap.isOpened():
     _, img = cap.read()
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-    # crossing_sign_scaled = crossing_sign.detectMultiScale(gray, 1.3, 5)
-    # left_sign_scaled = left_sign.detectMultiScale(gray, 1.3, 5)
-    # parking_sign_scaled = parking_sign.detectMultiScale(gray, 1.3, 5)
-    # right_sign_scaled = right_sign.detectMultiScale(gray, 1.3, 5)
-    # stop_sign_scaled = stop_sign.detectMultiScale(gray, 1.3, 5)
-    # tunnel_sign_scaled = tunnel_sign.detectMultiScale(gray, 1.3, 5)
-    sign_scaled = sign.detectMultiScale(gray, 1.3, 5)
+    crossing_sign_scaled = crossing_sign.detectMultiScale(gray, 1.3, 5)
+    left_sign_scaled = left_sign.detectMultiScale(gray, 1.3, 5)
+    parking_sign_scaled = parking_sign.detectMultiScale(gray, 1.3, 5)
+    right_sign_scaled = right_sign.detectMultiScale(gray, 1.3, 5)
+    stop_sign_scaled = stop_sign.detectMultiScale(gray, 1.3, 5)
+    tunnel_sign_scaled = tunnel_sign.detectMultiScale(gray, 1.3, 5)
+    train_sign_scaled = train_sign.detectMultiScale(gray, 1.3, 5)
+    #sign_scaled = sign.detectMultiScale(gray, 1.3, 5)
 
-    # # Detect the stop sign, x,y = origin points, w = width, h = height
-    # for (x, y, w, h) in crossing_sign_scaled:
-    #     # Draw rectangle around the sign
-    #     crossing_sign_rectangle = cv2.rectangle(img, (x,y),
-    #                                         (x+w, y+h),
-    #                                         (0, 255, 0), 3)
-    #     # Write "... sign" on the bottom of the rectangle
-    #     crossing_sign_text = cv2.putText(img=crossing_sign_rectangle,
-    #                                  text="Crossing Sign",
-    #                                  org=(x, y+h+30),
-    #                                  fontFace=cv2.FONT_HERSHEY_SIMPLEX,
-    #                                  fontScale=1, color=(0, 0, 255),
-    #                                  thickness=2, lineType=cv2.LINE_4)
-    
-    # for (x, y, w, h) in left_sign_scaled:
-    #     # Draw rectangle around the sign
-    #     left_sign_rectangle = cv2.rectangle(img, (x,y),
-    #                                         (x+w, y+h),
-    #                                         (0, 255, 0), 3)
-    #     # Write "... sign" on the bottom of the rectangle
-    #     left_sign_text = cv2.putText(img=left_sign_rectangle,
-    #                                  text="Left Sign",
-    #                                  org=(x, y+h+30),
-    #                                  fontFace=cv2.FONT_HERSHEY_SIMPLEX,
-    #                                  fontScale=1, color=(0, 0, 255),
-    #                                  thickness=2, lineType=cv2.LINE_4)
-    
-    # for (x, y, w, h) in parking_sign_scaled:
-    #     # Draw rectangle around the sign
-    #     parking_sign_rectangle = cv2.rectangle(img, (x,y),
-    #                                         (x+w, y+h),
-    #                                         (0, 255, 0), 3)
-    #     # Write "... sign" on the bottom of the rectangle
-    #     parking_sign_text = cv2.putText(img=parking_sign_rectangle,
-    #                                  text="Parking Sign",
-    #                                  org=(x, y+h+30),
-    #                                  fontFace=cv2.FONT_HERSHEY_SIMPLEX,
-    #                                  fontScale=1, color=(0, 0, 255),
-    #                                  thickness=2, lineType=cv2.LINE_4)
-        
-    # for (x, y, w, h) in right_sign_scaled:
-    #     # Draw rectangle around the sign
-    #     right_sign_rectangle = cv2.rectangle(img, (x,y),
-    #                                         (x+w, y+h),
-    #                                         (0, 255, 0), 3)
-    #     # Write "... sign" on the bottom of the rectangle
-    #     right_sign_text = cv2.putText(img=right_sign_rectangle,
-    #                                  text="Right Sign",
-    #                                  org=(x, y+h+30),
-    #                                  fontFace=cv2.FONT_HERSHEY_SIMPLEX,
-    #                                  fontScale=1, color=(0, 0, 255),
-    #                                  thickness=2, lineType=cv2.LINE_4)
-        
-    # for (x, y, w, h) in stop_sign_scaled:
-    #     # Draw rectangle around the sign
-    #     stop_sign_rectangle = cv2.rectangle(img, (x,y),
-    #                                         (x+w, y+h),
-    #                                         (0, 255, 0), 3)
-    #     # Write "... sign" on the bottom of the rectangle
-    #     stop_sign_text = cv2.putText(img=stop_sign_rectangle,
-    #                                  text="Stop Sign",
-    #                                  org=(x, y+h+30),
-    #                                  fontFace=cv2.FONT_HERSHEY_SIMPLEX,
-    #                                  fontScale=1, color=(0, 0, 255),
-    #                                  thickness=2, lineType=cv2.LINE_4)
-    
-    # for (x, y, w, h) in tunnel_sign_scaled:
-    #     # Draw rectangle around the sign
-    #     tunnel_sign_rectangle = cv2.rectangle(img, (x,y),
-    #                                         (x+w, y+h),
-    #                                         (0, 255, 0), 3)
-    #     # Write "... sign" on the bottom of the rectangle
-    #     tunnel_sign_text = cv2.putText(img=tunnel_sign_rectangle,
-    #                                  text="Tunnel Sign",
-    #                                  org=(x, y+h+30),
-    #                                  fontFace=cv2.FONT_HERSHEY_SIMPLEX,
-    #                                  fontScale=1, color=(0, 0, 255),
-    #                                  thickness=2, lineType=cv2.LINE_4)
-
-    for (x, y, w, h) in sign_scaled:
+    # Detect the stop sign, x,y = origin points, w = width, h = height
+    for (x, y, w, h) in crossing_sign_scaled:
         # Draw rectangle around the sign
-        sign_rectangle = cv2.rectangle(img, (x,y),
+        crossing_sign_rectangle = cv2.rectangle(img, (x,y),
                                             (x+w, y+h),
                                             (0, 255, 0), 3)
         # Write "... sign" on the bottom of the rectangle
-        sign_text = cv2.putText(img=sign_rectangle,
-                                     text="Sign",
+        crossing_sign_text = cv2.putText(img=crossing_sign_rectangle,
+                                     text="Crossing Sign",
                                      org=(x, y+h+30),
                                      fontFace=cv2.FONT_HERSHEY_SIMPLEX,
                                      fontScale=1, color=(0, 0, 255),
                                      thickness=2, lineType=cv2.LINE_4)
+    
+    for (x, y, w, h) in left_sign_scaled:
+        # Draw rectangle around the sign
+        left_sign_rectangle = cv2.rectangle(img, (x,y),
+                                            (x+w, y+h),
+                                            (0, 255, 0), 3)
+        # Write "... sign" on the bottom of the rectangle
+        left_sign_text = cv2.putText(img=left_sign_rectangle,
+                                     text="Left Sign",
+                                     org=(x, y+h+30),
+                                     fontFace=cv2.FONT_HERSHEY_SIMPLEX,
+                                     fontScale=1, color=(0, 0, 255),
+                                     thickness=2, lineType=cv2.LINE_4)
+    
+    for (x, y, w, h) in parking_sign_scaled:
+        # Draw rectangle around the sign
+        parking_sign_rectangle = cv2.rectangle(img, (x,y),
+                                            (x+w, y+h),
+                                            (0, 255, 0), 3)
+        # Write "... sign" on the bottom of the rectangle
+        parking_sign_text = cv2.putText(img=parking_sign_rectangle,
+                                     text="Parking Sign",
+                                     org=(x, y+h+30),
+                                     fontFace=cv2.FONT_HERSHEY_SIMPLEX,
+                                     fontScale=1, color=(0, 0, 255),
+                                     thickness=2, lineType=cv2.LINE_4)
+        
+    for (x, y, w, h) in right_sign_scaled:
+        # Draw rectangle around the sign
+        right_sign_rectangle = cv2.rectangle(img, (x,y),
+                                            (x+w, y+h),
+                                            (0, 255, 0), 3)
+        # Write "... sign" on the bottom of the rectangle
+        right_sign_text = cv2.putText(img=right_sign_rectangle,
+                                     text="Right Sign",
+                                     org=(x, y+h+30),
+                                     fontFace=cv2.FONT_HERSHEY_SIMPLEX,
+                                     fontScale=1, color=(0, 0, 255),
+                                     thickness=2, lineType=cv2.LINE_4)
+        
+    for (x, y, w, h) in stop_sign_scaled:
+        # Draw rectangle around the sign
+        stop_sign_rectangle = cv2.rectangle(img, (x,y),
+                                            (x+w, y+h),
+                                            (0, 255, 0), 3)
+        # Write "... sign" on the bottom of the rectangle
+        stop_sign_text = cv2.putText(img=stop_sign_rectangle,
+                                     text="Stop Sign",
+                                     org=(x, y+h+30),
+                                     fontFace=cv2.FONT_HERSHEY_SIMPLEX,
+                                     fontScale=1, color=(0, 0, 255),
+                                     thickness=2, lineType=cv2.LINE_4)
+    
+    for (x, y, w, h) in tunnel_sign_scaled:
+        # Draw rectangle around the sign
+        tunnel_sign_rectangle = cv2.rectangle(img, (x,y),
+                                            (x+w, y+h),
+                                            (0, 255, 0), 3)
+        # Write "... sign" on the bottom of the rectangle
+        tunnel_sign_text = cv2.putText(img=tunnel_sign_rectangle,
+                                     text="Tunnel Sign",
+                                     org=(x, y+h+30),
+                                     fontFace=cv2.FONT_HERSHEY_SIMPLEX,
+                                     fontScale=1, color=(0, 0, 255),
+                                     thickness=2, lineType=cv2.LINE_4)
+        
+    for (x, y, w, h) in train_sign_scaled:
+        # Draw rectangle around the sign
+        train_sign_rectangle = cv2.rectangle(img, (x,y),
+                                            (x+w, y+h),
+                                            (0, 255, 0), 3)
+        # Write "... sign" on the bottom of the rectangle
+        train_sign_text = cv2.putText(img=train_sign_rectangle,
+                                     text="Train Sign",
+                                     org=(x, y+h+30),
+                                     fontFace=cv2.FONT_HERSHEY_SIMPLEX,
+                                     fontScale=1, color=(0, 0, 255),
+                                     thickness=2, lineType=cv2.LINE_4)
+
+    # for (x, y, w, h) in sign_scaled:
+    #     # Draw rectangle around the sign
+    #     sign_rectangle = cv2.rectangle(img, (x,y),
+    #                                         (x+w, y+h),
+    #                                         (0, 255, 0), 3)
+    #     # Write "... sign" on the bottom of the rectangle
+    #     sign_text = cv2.putText(img=sign_rectangle,
+    #                                  text="Sign",
+    #                                  org=(x, y+h+30),
+    #                                  fontFace=cv2.FONT_HERSHEY_SIMPLEX,
+    #                                  fontScale=1, color=(0, 0, 255),
+    #                                  thickness=2, lineType=cv2.LINE_4)
 
     cv2.imshow("img", img)
     key = cv2.waitKey(30)
@@ -127,3 +143,4 @@ while cap.isOpened():
         break
     if key == ord('k'):
         cv2.imwrite('example/image' + str(i) + '.jpg', img)
+        i += 1
