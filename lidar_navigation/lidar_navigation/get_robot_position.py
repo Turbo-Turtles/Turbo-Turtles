@@ -1,62 +1,43 @@
-from geometry_msgs.msg import PoseStamped
-
-from nav2_simple_commander.robot_navigator import BasicNavigator, TaskResult
-
-from nav_msgs.msg import Odometry
-
 import rclpy
-from rclpy.time import Time
 from rclpy.node import Node
 
-from tf2_ros.buffer import Buffer
-from tf2_ros.transform_listener import TransformListener
+from functools import partial
+
+from geometry_msgs.msg import PoseStamped
+from turtlebot3_interfaces.srv import GetPosition
 
 class FrameListener(Node):
     def __init__(self):
-        super().__init__("tf2_frame_listener")
+        super().__init__("robot_pos")
 
-        self.x = 0
-        self.y = 0
-        self.frame_dist = 0
-
-        qos_policy = rclpy.qos.QoSProfile(reliability=rclpy.qos.ReliabilityPolicy.BEST_EFFORT,
-                                          history=rclpy.qos.HistoryPolicy.KEEP_LAST,
-                                          depth=1)
-
-        self.tf_buffer = Buffer()
-        self.tf_listener = TransformListener(self.tf_buffer, self)
-
-        self.odom_sub_ = self.create_subscription(
-            Odometry,
-            'odom',
-            self.listener_callback,
-            qos_profile=qos_policy,
-        )
+        self.location = PoseStamped()
 
         # Call on_timer function every second
-        self.timer = self.create_timer(0.1, self.timer_callback)
-
-    def listener_callback(self, msg):
-        self.x = msg.pose.pose.position.x
-        self.y = msg.pose.pose.position.y
+        self.timer = self.create_timer(1, self.timer_callback)
 
     def timer_callback(self):
-        self.get_frame_dist()
+        self.get_location()
 
-        print("x:", self.x, "y:", self.y, "\n")
-        print("transform:", self.frame_dist.transform.translation.x, "|", self.frame_dist.transform.translation.y)
+        print(self.location)
 
-    def get_frame_dist(self):
-        # Store frame names in variables that will be used to
-        # compute transformations
-        from_frame_rel = 'base_link'
-        to_frame_rel = 'odom'
+    # service client, calls position listener
+    def get_location(self):
+        client = self.create_client(GetPosition, 'current_position')
+        while not client.wait_for_service(1.0):
+            self.get_logger().warn("Waiting for service...")
 
-        # Look up for the transformation between frames
-        self.frame_dist = self.tf_buffer.lookup_transform(
-            to_frame_rel,
-            from_frame_rel,
-            Time())
+        future = client.call_async(GetPosition.Request())
+        # waits for response from service and the passes the received data on to a callback function
+        future.add_done_callback(partial(self.location_callback))
+
+    # callback function, to work with the received data from the service
+    def location_callback(self, future):
+        try:
+            response = future.result()
+            self.location.pose = response.position.pose
+        except Exception as e:
+            self.get_logger().error("Service call failed: %r" % (e,))
+
 
 def main():
     rclpy.init()

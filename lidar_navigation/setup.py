@@ -25,14 +25,12 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            'single_goal_nav = ' + package_name + '.single_goal_nav:main',
             'get_robot_pos = ' + package_name + '.get_robot_position:main',
-            'drive_1m = ' + package_name + '.drive_1m:main',
-            'waypoint_follower = ' + package_name + '.waypoint_follower:main',
-            'waypoint_nav = ' + package_name + '.waypoint_nav:main',
-            'get_min_range = ' + package_name + '.get_min_range:main',
             'tunnel_mission_test01 = ' + package_name + '.tunnel_mission_test01:main',
-            'tunnel_mission_test02 = ' + package_name + '.tunnel_mission_test02:main',
+            'map_recognition = ' + package_name + '.map_recognition:main',
+            'position_listener = ' + package_name + '.position_listener:main',
+            'tunnel_mission = ' + package_name + '.tunnel_mission:main',
+            'tunnel_mission_test = ' + package_name + '.tunnel_mission_test01:main',
         ],
     },
 )
