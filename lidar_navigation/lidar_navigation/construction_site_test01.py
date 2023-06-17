@@ -1,11 +1,19 @@
 #! /usr/bin/env python3
+# get own path
+import os, sys
+sys.path.append(os.path.join(
+    os.path.dirname(__file__),
+    "../../../../../../Turbo-Turtles/lidar_navigation/lidar_navigation/"))
+
 import rclpy
 from rclpy.node import Node
 from rclpy.duration import Duration
 
 from geometry_msgs.msg import PoseStamped
 from turtlebot3_interfaces.msg import Mission
-from turtlebot3_interfaces.srv import GetPosition
+
+from map_recognition import MapRecognition
+from position_listener import PositionListener
 
 from nav2_simple_commander.robot_navigator import BasicNavigator, TaskResult
 
@@ -33,20 +41,21 @@ class ConstructionMission(Node):
             qos_profile=qos_policy
         )
 
-        self.position_client_ = self.create_client(
-            GetPosition,
-            'current_position',
-            qos_profile=qos_policy
-        )
-
     def mission_callback(self, msg):
         if msg.mission_name == "construction" and self.active == False:
             self.active = True
 
+            # current position
+            x, y, z, w = self.get_location()
+
             # set initial pose with current position
-            initial_pose = self.get_location()
+            initial_pose = PoseStamped()
             initial_pose.header.frame_id = 'map'
             initial_pose.header.stamp = self.navigator_.get_clock().now().to_msg()
+            initial_pose.pose.position.x = x
+            initial_pose.pose.position.y = y
+            initial_pose.pose.orientation.z = z
+            initial_pose.pose.orientation.w = w
             self.navigator_.setInitialPose(initial_pose)
 
             # set goal posees to follow
@@ -56,18 +65,7 @@ class ConstructionMission(Node):
 #
 # how we gonna do dis
 #
-            # create tunnel entry waypoint
-            # tunnel_dist = self.get_dist(315)
-            tunnel_entry = initial_pose
-            tunnel_entry.header.stamp = self.navigator_.get_clock().now().to_msg()
-            tunnel_entry.pose.position.y -= 0.6  # 0.6 meters infront of bot at tunnel entry
-            goal_poses.append(tunnel_entry)
-
-            # create tunnel exit waypoint
-            tunnel_exit = self.start_pose
-            tunnel_exit.header.stamp = self.navigator_.get_clock().now().to_msg()
-            tunnel_exit.pose.position.x -= 0.5  # 0.5 meters behind bot from start point
-            goal_poses.append(tunnel_exit)
+            
 #
 ###################################
 
@@ -110,10 +108,12 @@ class ConstructionMission(Node):
     
     def get_location(self):
         # get current loaction
-        get_current_pose = self.position_client_.call_async(True)
-        rclpy.spin_until_future_complete(self, get_current_pose)
+        get_current_pose = PositionListener()
+        rclpy.spin_once(get_current_pose)
+        position = get_current_pose.get_position()
+        get_current_pose.destroy_node()
 
-        return get_current_pose.result()
+        return position.pose.position.x, position.pose.position.y, position.pose.orientation.z, position.pose.orientation.w
 
 
 # main

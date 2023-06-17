@@ -7,8 +7,8 @@
 #
 ##################################
 
-import sys
-sys.path.insert(0, '')
+# import sys, os
+# sys.path.append(os.path.dirname(__file__))
 
 import rclpy
 from rclpy.node import Node

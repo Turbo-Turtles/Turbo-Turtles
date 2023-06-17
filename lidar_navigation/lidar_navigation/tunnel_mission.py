@@ -1,11 +1,18 @@
 #! /usr/bin/env python3
+# get own path
+import os, sys
+sys.path.append(os.path.join(
+    os.path.dirname(__file__),
+    "../../../../../../Turbo-Turtles/lidar_navigation/lidar_navigation/"))
+
 import rclpy
 from rclpy.node import Node
 from rclpy.duration import Duration
 
-from nav_msgs.msg import Odometry
 from geometry_msgs.msg import PoseStamped
 from turtlebot3_interfaces.msg import Mission
+
+from position_listener import PositionListener
 
 from nav2_simple_commander.robot_navigator import BasicNavigator, TaskResult
 
@@ -17,9 +24,6 @@ class TunnelMission(Node):
 
         # variable to avoid execution when already running
         self.active = False
-
-        # variable to hold position information
-        self.position = PoseStamped()
         
         # initial coordinates, to base the goal location of
         self.x, self.y, self.z, self.w = self.get_location()
@@ -47,18 +51,6 @@ class TunnelMission(Node):
             'mission',
             self.mission_callback,
             qos_profile=qos_policy
-        )
-
-        self.odom_sub_ = self.create_subscription(
-            Odometry,
-            'odom',
-            self.odom_callback,
-            qos_profile=qos_policy,
-        )
-
-        self.timer_ = self.create_timer(
-            1,
-            self.timer_callback,
         )
 
         rclpy.get_default_context().on_shutdown(self.navigator_.lifecycleShutdown)
@@ -139,20 +131,18 @@ class TunnelMission(Node):
 
             self.navigator_.lifecycleShutdown()
 
-    
-    def odom_callback(self, msg):
-        # print(msg.pose.pose)
-        self.position.pose = msg.pose.pose
 
     def get_location(self):
         # get current loaction
-        return self.position.pose.position.x, self.position.pose.position.x, self.position.pose.orientation.z, self.position.pose.orientation.w
+        get_current_pose = PositionListener()
+        rclpy.spin_once(get_current_pose)
+        position = get_current_pose.get_position()
+        get_current_pose.destroy_node()
+
+        return position.pose.position.x, position.pose.position.y, position.pose.orientation.z, position.pose.orientation.w
 
     def exit_callback(self):
         self.navigator_.lifecycleShutdown()
-
-    def timer_callback(self):
-        print(self.position.pose.position.x, self.position.pose.position.y, "\n")
 
 
 # main
