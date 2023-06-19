@@ -7,8 +7,6 @@ sys.path.append(os.path.join(
 
 from position_listener import PositionListener
 
-from time import sleep
-
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -33,6 +31,8 @@ class MapRecognition(Node):
         self.adjacent2 = [[0,1], [1,0], [1,-1], [1,1]]    # O, S, SW, SE
 
         self.saved = False
+        self.shown = False
+        self.shown1 = False
 
         # quality of service policy
         qos_policy = rclpy.qos.QoSProfile(reliability=rclpy.qos.ReliabilityPolicy.BEST_EFFORT,
@@ -48,23 +48,28 @@ class MapRecognition(Node):
             qos_profile=qos_policy
         )
 
+        self.recognition_ = self.create_timer(1.0, self.timer_callback)
+
     def mission_callback(self, msg):
         # save global map
         self.map = msg
         self.saved = True
 
-    def success(self):
+    def timer_callback(self):
         if self.saved:
+            # copy map so it doesnt change while beeing looked at
+            map = self.map
+
             # analyze the map
-            x, y, resolution = self.map.info.width, self.map.info.height, self.map.info.resolution
-            origin = self.map.info.origin
+            x, y, resolution = map.info.width, map.info.height, map.info.resolution
+            origin = map.info.origin
             print(x, y, resolution)
             print(origin.position.x, origin.position.y, origin.orientation.z, origin.orientation.w)
         
-            return 1
+            self.get_waypoints()
 
         else:
-            return 0
+            print("waiting...")
 
 ###################################################################
 # maybe this should be in construction_site file and be replaced by get_coords
@@ -75,28 +80,35 @@ class MapRecognition(Node):
         data = self.prepare_data(self.map.data, self.map.info.height, self.map.info.width)
         end_img = data
         label_img, label_amount = self.two_pass(data, self.map.info.height, self.map.info.width)
+        
+        if not self.shown1:
+            self.shown1 = True
+            plt.imshow(label_img, interpolation='None')
+            ax = plt.gca()
+            ax.invert_yaxis()
+            plt.show()
 
         end_img[int(robot_y)][int(robot_x)] = self.bot
 
-        coords = self.find_coords(label_img, label_amount, robot_x, robot_y, self.map.info.width, self.map.info.height)
+        # coords = self.find_coords(label_img, label_amount, robot_x, robot_y, self.map.info.width, self.map.info.height)
+        coords = self.find_coords(label_img, label_amount, 0, 0, self.map.info.width, self.map.info.height)
 
         for coord in coords:
             end_img[coord[0]][coord[1]] = self.center
 
-        print(len(coords))
-        print(coords)
+        # if len(coords) >= 3:
+        #     print(len(coords))
+        #     print(coords)
 
-        waypoints = self.create_waypoints(coords, robot_x, robot_y)
+        #     waypoints = self.create_waypoints(coords, robot_x, robot_y)
 
-        for wp in waypoints:
-            end_img[int(wp[0])][int(wp[1])] = self.waypoint
+        #     for wp in waypoints:
+        #         end_img[int(wp[0])][int(wp[1])] = self.waypoint
 
         plt.imshow(end_img, interpolation='None')
         ax = plt.gca()
         ax.invert_yaxis()
         plt.show()
-
-        return self.convert_waypoints(waypoints)
 ###################################################################
 
     def prepare_data(self, data, M, N):
@@ -112,6 +124,13 @@ class MapRecognition(Node):
         new_data[src<self.threshold] = [0,0,0]
         new_data[src>self.threshold] = [1,1,1]
 
+        if not self.shown:
+            self.shown = True
+            plt.imshow(new_data, interpolation='None')
+            ax = plt.gca()
+            ax.invert_yaxis()
+            plt.show()
+
         return new_data
 
 
@@ -123,8 +142,8 @@ class MapRecognition(Node):
         nextLabel = 1
 
         # first pass
-        for row in range(len(data)):
-            for column in range(len(data[row])):
+        for row in range(M):
+            for column in range(N):
                 # if not background
                 if data[row][column].tolist() != self.background:
                     # get all neighbors (W, N, NW, NE)
@@ -149,44 +168,43 @@ class MapRecognition(Node):
                         L = neighbors_labels
                         labels[row][column] = min(L)
                         for label in L:
-                            linked[int(label)-1].append(L)
+                            if label < nextLabel-1:
+                                linked[nextLabel-2].append(label)
+                            elif label > nextLabel-1:
+                                linked[label-1].append(nextLabel-1)
+
+        if not self.shown1:
+            plt.imshow(labels, interpolation='None')
+            ax = plt.gca()
+            ax.invert_yaxis()
+            plt.show()
 
         # second pass
-        for row in range(len(data)):
-            for column in range(len(data[row])):
-                if data[row][column].tolist() != self.background:
-                    # get all neighbors (O, S, SW, SE)
-                    neighbors_labels = []
-                    for direction in self.adjacent2:
-                        try:
-                            if data[row+direction[0]][column+direction[1]].tolist() != self.background:
-                                neighbors_labels.append(labels[row+direction[0]][column+direction[1]])
-                        except:
-                            # print('doesnt exist! out of image!')
-                            pass
 
-                    if len(neighbors_labels) > 0:
-                        # find smallest label of neighbors
-                        L = neighbors_labels
-                        labels[row][column] = min(L)
-        
-        # get amount of remaining labels
         used_labels = []
-        label_amount = 1
-        for row in labels:
-            for column in row:
-                if column not in used_labels and column != 0:
-                    used_labels.append(column)
-                    label_amount += 1
-        
-        # clean up the labels to be 1 to label_amount
-        for row in range(len(labels)):
-            for column in range(len(labels[row])):
-                if labels[row][column] in used_labels:
-                    labels[row][column] = used_labels.index(labels[row][column]) + 1
+        for i in range(len(linked), 0, -1):
+            print(linked[i-1][0], "->", min(linked[i-1]))
+            labels[labels==linked[i-1][0]] = int(min(linked[i-1]))
 
-        
-        return labels, label_amount-1
+
+        old_labels = []
+        used_labels = []
+        for row in range(M):
+            for column in range(N):
+                l = labels[row][column]
+                if l not in used_labels:
+                    old_labels.append(l)
+
+        for i in range(len(old_labels)):
+            used_labels.append(i+1)
+            labels[labels==label] = used_labels[-1]
+
+
+        print(used_labels)
+
+
+
+        return labels, len(used_labels) # label_amount
     
     # find the center coordinate of each label
     def find_coords(self, data, labels, x1, y1, x2, y2):
@@ -235,14 +253,9 @@ class MapRecognition(Node):
     def create_waypoints(self, obstacles, robot_x, robot_y):
         waypoints = []
         obstacles = np.asarray(obstacles)
-
-        # prepare and sort the received coords
-        np.sort(obstacles, axis=0)  # sort along y axis
-
-        # print(obstacles)
         
         # waypoint 1
-        x1 = obstacles[obstacles[:,0].tolist().index(max(obstacles[:,0])), 1] +3
+        x1 = obstacles[obstacles[:,0].tolist().index(max(obstacles[:,0])), 1]
         y1 = robot_y
         waypoints.append([y1, x1])
 
@@ -252,7 +265,7 @@ class MapRecognition(Node):
         waypoints.append([y2, x2])
 
         # waypoint 3
-        x3 = x1 - 1 -3
+        x3 = x1
         y3 = obstacles[obstacles[:,0].tolist().index(sorted(obstacles[:,0])[1]), 0]
         waypoints.append([y3, x3])
 
@@ -262,21 +275,9 @@ class MapRecognition(Node):
         waypoints.append([y4, x4])
 
         # waypoint 5
-        x5 = x1 -3
-        y5 = y4 + (y2 - robot_y)
+        x5 = x1
+        y5 = y3 - (y1 - y3)
         waypoints.append([y5, x5])
-
-        # sort waypoints
-        print(waypoints)
-        waypoints = sorted(waypoints, key=lambda x: x[0])
-        print(waypoints)
-
-        return waypoints
-    
-    def convert_waypoints(self, waypoints):
-        for waypoint in range(len(waypoints)):
-            waypoints[waypoint][0] = self.map.info.origin.position.y + waypoints[waypoint][0] * self.map.info.resolution
-            waypoints[waypoint][1] = self.map.info.origin.position.x + waypoints[waypoint][1] * self.map.info.resolution
 
         return waypoints
 ###################################################################
@@ -290,3 +291,19 @@ class MapRecognition(Node):
         get_current_pose.destroy_node()
 
         return position.pose.position.x, position.pose.position.y, position.pose.orientation.z, position.pose.orientation.w
+
+
+
+# main
+def main():
+    rclpy.init()
+    node = MapRecognition()
+    rclpy.spin(node)
+    node.destroy_node()
+    rclpy.shutdown()
+
+    exit(0)
+
+
+if __name__ == '__main__':
+    main()

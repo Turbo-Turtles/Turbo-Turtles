@@ -62,15 +62,24 @@ class ConstructionMission(Node):
             goal_poses = []
 
 ##############################
-#
-# how we gonna do dis
-#
-            
+# waypoints
+            waypoints = self.get_waypoints()
+
+            for waypoint in waypoints:
+                print(waypoint)
+
+                next_pose = PoseStamped()
+                next_pose.header.frame_id = 'map'
+                next_pose.header.stamp = self.navigator_.get_clock().now().to_msg()
+                next_pose.pose.position.x = waypoint[1]
+                next_pose.pose.position.y = waypoint[0]
+                goal_poses.append(next_pose)
 #
 ###################################
 
             nav_start = self.navigator_.get_clock().now()
-            self.navigator_.followWaypoints(goal_poses)
+            # self.navigator_.followWaypoints(goal_poses)
+            self.navigator_.goThroughPoses(goal_poses)
 
             i = 0
             while not self.navigator_.isTaskComplete():
@@ -80,16 +89,28 @@ class ConstructionMission(Node):
                 #
                 ################################################
 
-                # Do something with the feedback
+                # follow waypoint
+                # i = i + 1
+                # feedback = self.navigator_.getFeedback()
+                # if feedback and i % 5 == 0:
+                #     print('Executing current waypoint: ' +
+                #         str(feedback.current_waypoint + 1) + '/' + str(len(goal_poses)))
+                #     now = self.navigator_.get_clock().now()
+
+                #     # Some navigation timeout to demo cancellation
+                #     if now - nav_start > Duration(seconds=600.0):
+                #         self.navigator_.cancelTask()
+
+                # go through poses
                 i = i + 1
                 feedback = self.navigator_.getFeedback()
                 if feedback and i % 5 == 0:
-                    print('Executing current waypoint: ' +
-                        str(feedback.current_waypoint + 1) + '/' + str(len(goal_poses)))
-                    now = self.navigator_.get_clock().now()
+                    print('Estimated time of arrival: ' + '{0:.0f}'.format(
+                        Duration.from_msg(feedback.estimated_time_remaining).nanoseconds / 1e9)
+                        + ' seconds.')
 
                     # Some navigation timeout to demo cancellation
-                    if now - nav_start > Duration(seconds=600.0):
+                    if Duration.from_msg(feedback.navigation_time) > Duration(seconds=600.0):
                         self.navigator_.cancelTask()
             
             # Do something depending on the return code
@@ -105,6 +126,14 @@ class ConstructionMission(Node):
 
             self.navigator_.lifecycleShutdown()
 
+    def get_waypoints(self):
+        # get waypoints
+        get_wps = MapRecognition()
+        while not get_wps.success():
+            rclpy.spin_once(get_wps)
+        waypoints = get_wps.get_waypoints()
+
+        return waypoints
     
     def get_location(self):
         # get current loaction

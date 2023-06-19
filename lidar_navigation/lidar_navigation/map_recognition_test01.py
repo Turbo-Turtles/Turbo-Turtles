@@ -255,6 +255,9 @@ class MapRecognition(Node):
     def create_waypoints(self, obstacles, robot_x, robot_y):
         waypoints = []
         obstacles = np.asarray(obstacles)
+
+        # prepare and sort the received coords
+        np.sort(obstacles, axis=0)  # sort along y axis
         
         # waypoint 1
         x1 = obstacles[obstacles[:,0].tolist().index(max(obstacles[:,0])), 1]
@@ -267,7 +270,7 @@ class MapRecognition(Node):
         waypoints.append([y2, x2])
 
         # waypoint 3
-        x3 = x1
+        x3 = x1 - 1
         y3 = obstacles[obstacles[:,0].tolist().index(sorted(obstacles[:,0])[1]), 0]
         waypoints.append([y3, x3])
 
@@ -278,7 +281,7 @@ class MapRecognition(Node):
 
         # waypoint 5
         x5 = x1
-        y5 = y3 - (y1 - y3)
+        y5 = y4 + (y2 - robot_y)
         waypoints.append([y5, x5])
 
         return waypoints
