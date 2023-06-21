@@ -12,7 +12,7 @@ from rclpy.duration import Duration
 from geometry_msgs.msg import PoseStamped
 from turtlebot3_interfaces.msg import Mission
 
-from map_recognition import MapRecognition
+from map_recognition2 import MapRecognition
 from position_listener import PositionListener
 
 from nav2_simple_commander.robot_navigator import BasicNavigator, TaskResult
