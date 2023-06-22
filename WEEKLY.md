@@ -173,7 +173,6 @@
   - implement concepts for missions:
     - lane following (does work in real life, sometimes problems in curves)
     - get through construction site (implement)
-    - intersection
     - meeting to review progress
 
 ## Week 11
