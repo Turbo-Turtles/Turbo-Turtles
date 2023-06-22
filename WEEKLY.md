@@ -145,19 +145,65 @@
 
   - implement concepts for missions:
     - lane following (improve)
-    - level cross (barrier open/close)
+    - level crossing (barrier open/close)
     - get through construction site
     - intersection
+  - real life tests
 
 - ### Progress
+
+  - implement concepts for missions:
+    - get through construction site (concept)
+    - level crossing (detect)
+  - real life tests
 
 ## Week 10
 
 - ### Goals
 
+  - implement concepts for missions:
+    - lane following (improve)
+    - level crossing (barrier open/close)
+    - get through construction site (implement)
+    - intersection
+    - meeting to review progress
+
 - ### Progress
 
+  - implement concepts for missions:
+    - lane following (does work in real life, sometimes problems in curves)
+    - get through construction site (implement)
+    - intersection
+    - meeting to review progress
+
 ## Week 11
+
+- ### Goals
+
+  - implement concepts for missions:
+    - lane following (improve)
+    - level crossing (barrier open/close)
+    - get through construction site (improve)
+    - intersection
+  - set up nav2 start conditions
+  - start intelligence node
+
+- ### Progress
+
+
+## Week 12
+
+- ### Goals
+
+- ### Progress
+
+## Week 13
+
+- ### Goals
+
+- ### Progress
+
+## Week 14
 
 - ### Goals
 
