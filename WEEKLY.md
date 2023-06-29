@@ -189,10 +189,20 @@
 
 - ### Progress
 
+  - new concept for level crossing
+
 
 ## Week 12
 
 - ### Goals
+
+  - implement concepts for missions:
+    - lane following (improve)
+    - level crossing (barrier open/close)
+    - get through construction site (improve)
+    - intersection
+  - set up nav2 start conditions
+  - start intelligence node
 
 - ### Progress
 
