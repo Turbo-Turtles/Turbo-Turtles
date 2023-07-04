@@ -16,6 +16,11 @@ amcl:
     laser_max_range: 100.0
     laser_min_range: -1.0
     laser_model_type: "likelihood_field"
+    #########
+    # initial pose seems to not work
+    # set_initial_pose: True
+    # initial_pose: [0.8, -1.7, 0.0, 0.0]
+    #########
     max_beams: 60
     max_particles: 2000
     min_particles: 500

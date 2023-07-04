@@ -20,6 +20,10 @@ def generate_launch_description():
                 'map':map_file,
                 'use_sim_time':'False',
                 'params_file':param_file,
+                # 'pose': {
+                #     'x_pose':'1.0',
+                #     'y_pose':'2.0',
+                # }
                 # 'x_pose':'0.8',
                 # 'y_pose':'-1.7',
                 # 'yaw':,
