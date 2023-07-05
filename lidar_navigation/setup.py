@@ -25,12 +25,8 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            'tunnel_mission_test01 = ' + package_name + '.tunnel_mission_test01:main',
             'map_recognition = ' + package_name + '.map_recognition:main',
             'tunnel_mission = ' + package_name + '.tunnel_mission:main',
-            'tunnel_mission_test04 = ' + package_name + '.tunnel_mission_test04:main',
-            'map_recognition_test01 = ' + package_name + '.map_recognition_test01:main',
-            'map_recognition_test02 = ' + package_name + '.map_recognition_test02:main',
             'construction_site_test01 = ' + package_name + '.construction_site_test01:main',
         ],
     },
