@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import rclpy
 from rclpy.node import Node
+from rclpy.lifecycle import l
 
 from turtlebot3_interfaces.msg import Mission, Progress, Sign
 
@@ -10,7 +11,7 @@ class Intelligence(Node):
 
         self.sections = ["traffic", "intersection", "construction", "parking", "crossing", "tunnel"]
 
-        self.active_section = self.sections[0]
+        self.active_section = 0
         self.section_changed = False
         self.lane_following_active = False
 
@@ -51,27 +52,14 @@ class Intelligence(Node):
 
     # subscriber callbacks
     def progress_callback(self, msg):
-        # if active section traffic
-        # if error from lane following : stop execution
+        # basically just a fail save, so the robot stop, when any node signals an error
+        if msg.state == False:
+            self.running = False
 
-        # if active section intersection
-        # if error from lane following : stop execution
-
-        # if active section construction
-        # if error from lane following : stop execution
-        # if error from construction mission : stop execution
-
-        # if active section parking
-        # if error from lane following : stop execution
-
-        # if active section crossing
-        # if error from lane following : stop execution
-
-        # if active section tunnel
-        # if error from lane following : stop execution
-        # if error from construction mission : stop execution
-
-        return
+        # if a nav2 task (construction and tunnel) is done, it sends a message with True
+        # this enables the lane following again
+        elif msg.sender == "nav2":
+            self.lane_following_active = True
     
     def sign_callback(self, msg):
         # if active section traffic
@@ -80,6 +68,15 @@ class Intelligence(Node):
 
         # if active section traffic
         # if intersection sign : set actve section intersection
+        if self.active_section == 0:
+            if msg.sign == "traffic":
+                if msg.state == 0 or msg.state == 1:
+                    self.lane_following_active = False
+                elif msg.state == 2:
+                    self.lane_following_active = True
+            
+            if msg.sign == "intersection":
+                self.active_section += 1
 
         # if active section intersection
         # if arrow left : left to lane following
@@ -87,39 +84,85 @@ class Intelligence(Node):
 
         # if active section intersection
         # if construction sign : set active section construction, no lane following, go for construction mission
+        if self.active_section == 1:
+            if msg.sign == "left":
+                pass
+            elif msg.sign == "right":
+                pass
+
+            if msg.sign == "contruction":
+                self.active_section += 1
+
+                self.lane_following_active = False
+
+                pass
 
         # if active section construction
         # if parking sign : set active section parking, left to lane following
+        if self.active_section == 2:
+            if msg.sign == "parking":
+                self.active_section += 1
+
+                pass
 
         # if active section parking
         # if arrow left : set active section crossing, left to lane following
+        if self.active_section == 3:
+            if msg.sign == "left":
+                self.active_section += 1
+
+                pass
 
         # if active section crossing
         # if crossing closed : no lane following
         # if crossing open : lane following
         # set active mission tunnel
+        if self.active_section == 4:
+            if msg.sign == "crossing":
+                if msg.state == 0:
+                    self.lane_following_active = False
+                elif msg.state == 1:
+                    self.lane_following_active = True
+
+                    self.active_section += 1
 
         # if active mission tunnel
         # if tunnel sign : go for tunnel mission
 
         # if active mission tunnel
-        # if traffic light : no lane following, set self.running to False
+        # if traffic light : set self.running to False
+        if self.active_section == 5:
+            if msg.sign == "tunnel":
+                pass
 
-        return
+            if msg.sign == "traffic":
+                self.running = False
     
     # timer callbacks
     def updater_callback(self):
-        # publish the current mission, if the section changed
-        if self.section_changed:
+        if self.running:
+            # publish the current mission, if the section changed
+            if self.section_changed:
+                msg = Mission()
+                msg.mission_name = self.active_section
+                msg.state = True
+                self.pub_mission(msg)
+
+            # publish state of lane following
             msg = Mission()
-            msg.mission_name = self.active_section
+            msg.mission_name = "lane"
+            msg.state = self.lane_following_active
             self.pub_mission(msg)
 
-        # publish state of lane following
-        msg = Mission()
-        msg.mission_name = "lane"
-        msg.state = self.lane_following_active
-        self.pub_mission(msg)
+        else:
+            # end lane following
+            msg = Mission()
+            msg.mission_name = "lane"
+            msg.state = False
+            self.pub_mission(msg)
+
+            # stop execution
+            raise SystemExit
 
 
 
@@ -127,7 +170,10 @@ class Intelligence(Node):
 def main():
     rclpy.init()
     node = Intelligence()
-    rclpy.spin_once(node)
+    try:
+        rclpy.spin(node)
+    except SystemExit:
+        rclpy.logging.get_logger("Quitting").info('Done')
     node.destroy_node()
     rclpy.shutdown()
 
