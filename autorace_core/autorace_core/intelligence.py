@@ -10,10 +10,12 @@ class Intelligence(Node):
         super().__init__("intelligence_node")
 
         self.sections = ["traffic", "intersection", "construction", "parking", "crossing", "tunnel"]
+        self.turns = ["left", "right"]
 
         self.active_section = 0
         self.section_changed = False
         self.lane_following_active = False
+        self.turn = 0
 
         self.running = True
 
@@ -77,6 +79,7 @@ class Intelligence(Node):
             
             if msg.sign == "intersection":
                 self.active_section += 1
+                self.section_changed = True
 
         # if active section intersection
         # if arrow left : left to lane following
@@ -86,24 +89,24 @@ class Intelligence(Node):
         # if construction sign : set active section construction, no lane following, go for construction mission
         if self.active_section == 1:
             if msg.sign == "left":
-                pass
+                self.turn = 2
             elif msg.sign == "right":
-                pass
+                self.turn = 1
 
             if msg.sign == "contruction":
                 self.active_section += 1
+                self.section_changed = True
 
                 self.lane_following_active = False
-
-                pass
 
         # if active section construction
         # if parking sign : set active section parking, left to lane following
         if self.active_section == 2:
             if msg.sign == "parking":
                 self.active_section += 1
+                self.section_changed = True
 
-                pass
+                self.turn = 2
 
         # if active section parking
         # if arrow left : set active section crossing, left to lane following
@@ -111,7 +114,7 @@ class Intelligence(Node):
             if msg.sign == "left":
                 self.active_section += 1
 
-                pass
+                self.turn = 2
 
         # if active section crossing
         # if crossing closed : no lane following
@@ -119,6 +122,8 @@ class Intelligence(Node):
         # set active mission tunnel
         if self.active_section == 4:
             if msg.sign == "crossing":
+                self.section_changed = True
+
                 if msg.state == 0:
                     self.lane_following_active = False
                 elif msg.state == 1:
@@ -133,7 +138,7 @@ class Intelligence(Node):
         # if traffic light : set self.running to False
         if self.active_section == 5:
             if msg.sign == "tunnel":
-                pass
+                self.section_changed = True
 
             if msg.sign == "traffic":
                 self.running = False
@@ -143,8 +148,10 @@ class Intelligence(Node):
         if self.running:
             # publish the current mission, if the section changed
             if self.section_changed:
+                self.section_changed = False
+
                 msg = Mission()
-                msg.mission_name = self.active_section
+                msg.mission_name = self.sections[self.active_section]
                 msg.state = True
                 self.pub_mission(msg)
 
@@ -153,6 +160,15 @@ class Intelligence(Node):
             msg.mission_name = "lane"
             msg.state = self.lane_following_active
             self.pub_mission(msg)
+
+            # signal an upcoming turn
+            if self.lane_following_active and self.turn != 0:
+                self.turn = 0
+
+                msg = Mission()
+                msg.mission_name = self.turns[-self.turn]
+                msg.state = self.lane_following_active
+                self.pub_mission(msg)
 
         else:
             # end lane following
