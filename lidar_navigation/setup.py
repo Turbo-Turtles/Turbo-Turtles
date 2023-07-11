@@ -28,6 +28,7 @@ setup(
             'map_recognition = ' + package_name + '.map_recognition:main',
             'tunnel_mission = ' + package_name + '.tunnel_mission:main',
             'construction_site_test01 = ' + package_name + '.construction_site_test01:main',
+            'free_lot = ' + package_name + '.free_lot_test01:main',
         ],
     },
 )

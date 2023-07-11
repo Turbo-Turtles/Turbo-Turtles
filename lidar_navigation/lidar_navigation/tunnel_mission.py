@@ -1,10 +1,4 @@
-#! /usr/bin/env python3
-# get own path
-import os, sys
-sys.path.append(os.path.join(
-    os.path.dirname(__file__),
-    "../../../../../../Turbo-Turtles/lidar_navigation/lidar_navigation/"))
-
+#!/usr/bin/env python3
 import rclpy
 from rclpy.node import Node
 from rclpy.duration import Duration
@@ -12,19 +6,19 @@ from rclpy.duration import Duration
 from geometry_msgs.msg import PoseStamped
 from turtlebot3_interfaces.msg import Mission
 
-from position_listener import PositionListener
+from math import acos, sin, cos
+
+from lidar_navigation.position_listener import PositionListener
 
 from nav2_simple_commander.robot_navigator import BasicNavigator, TaskResult
 
-
-# classes start
+# class
 class TunnelMission(Node):
     def __init__(self):
         super().__init__("tunnel_mission")
 
-        # variable to avoid execution when already running
         self.active = False
-        
+
         # initial coordinates, to base the goal location of
         self.x, self.y, self.z, self.w = self.get_location()
 
@@ -77,22 +71,11 @@ class TunnelMission(Node):
 
             # create tunnel entry waypoint
             # tunnel_dist = self.get_dist(315)
-            tunnel_entry = PoseStamped()
-            tunnel_entry.header.frame_id = 'map'
-            tunnel_entry.header.stamp = self.navigator_.get_clock().now().to_msg()
-            tunnel_entry.pose.position.x = x
-            tunnel_entry.pose.position.y = y - 2* 0.3   # 0.6 meters infront of bot at tunnel entry
-            tunnel_entry.pose.orientation.z = z
-            tunnel_entry.pose.orientation.w = w
+            tunnel_entry = self.get_relative_coords(initial_pose, 0.6, 0)
             goal_poses.append(tunnel_entry)
 
             # create tunnel exit waypoint
-            tunnel_exit = self.start_pose
-            tunnel_exit.header.stamp = self.navigator_.get_clock().now().to_msg()
-            tunnel_exit.pose.position.x = self.x - 0.5  # 0.5 meters behind bot from start point
-            tunnel_exit.pose.position.y = self.y
-            tunnel_exit.pose.orientation.z = self.z
-            tunnel_exit.pose.orientation.w = self.w
+            tunnel_exit = self.get_relative_coords(self.start_pose, -0.5, 0)
             goal_poses.append(tunnel_exit)
 
             nav_start = self.navigator_.get_clock().now()
@@ -131,6 +114,39 @@ class TunnelMission(Node):
 
             self.navigator_.lifecycleShutdown()
 
+
+    def get_relative_coords(self, pose: PoseStamped, rel_x, rel_y, rel_angle = 0.0):
+        rel_pose = PoseStamped()
+
+        angle = self.get_angle(pose.pose.orientation.z, pose.pose.orientation.w)
+        z, w = self.get_quaternion(angle + rel_angle)
+
+        rel_pose.header.frame_id = 'map'
+        rel_pose.header.stamp = self.navigator_.get_clock().now().to_msg()
+        rel_pose.pose.position.x = pose.pose.position.x + rel_x * cos(angle / 57.3) + rel_y * sin(angle / 57.3)
+        rel_pose.pose.position.y = pose.pose.position.y + rel_x * sin(angle / 57.3) + rel_y * cos(angle / 57.3)
+        rel_pose.pose.orientation.z = z
+        rel_pose.pose.orientation.w = w
+        self.navigator_.setInitialPose(rel_pose)
+
+        return rel_pose
+    
+    def get_angle(self, z, w):
+        # 57.3 deg are 1 rad
+        if z < 0:
+            angle = 360 - acos(w) * 2 * 57.3
+        else:
+            angle = acos(w) * 2 * 57.3
+
+        return angle
+    
+    def get_quaternion(self, angle):
+        angle /= 57.3
+        
+        z = sin(angle/2.0)
+        w = cos(angle/2.0)
+
+        return z, w
 
     def get_location(self):
         # get current loaction

@@ -1,10 +1,4 @@
 #! /usr/bin/env python3
-# get own path
-import os, sys
-sys.path.append(os.path.join(
-    os.path.dirname(__file__),
-    "../../../../../../Turbo-Turtles/lidar_navigation/lidar_navigation/"))
-
 import rclpy
 from rclpy.node import Node
 from rclpy.duration import Duration
@@ -12,8 +6,8 @@ from rclpy.duration import Duration
 from geometry_msgs.msg import PoseStamped
 from turtlebot3_interfaces.msg import Mission
 
-from map_recognition2 import MapRecognition
-from position_listener import PositionListener
+from lidar_navigation.map_recognition2 import MapRecognition
+from lidar_navigation.position_listener import PositionListener
 
 from nav2_simple_commander.robot_navigator import BasicNavigator, TaskResult
 

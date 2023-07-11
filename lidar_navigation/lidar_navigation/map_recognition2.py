@@ -1,11 +1,4 @@
-#!/usr/bin/env python3
-# get own path
-import os, sys
-sys.path.append(os.path.join(
-    os.path.dirname(__file__),
-    "../../../../../../Turbo-Turtles/lidar_navigation/lidar_navigation/"))
-
-from position_listener import PositionListener
+from lidar_navigation.position_listener import PositionListener
 
 from time import sleep
 
