@@ -19,7 +19,11 @@ amcl:
     #########
     # initial pose seems to not work
     # set_initial_pose: True
-    # initial_pose: [0.8, -1.7, 0.0, 0.0]
+    # initial_pose:
+    #   x: 0.8
+    #   y: -1.7
+    #   z: 0.0
+    #   yaw: 0.0
     #########
     max_beams: 60
     max_particles: 2000

@@ -9,7 +9,8 @@ class GetFreeSlot(Node):
     def __init__(self):
         super().__init__("get_free_parking_lot")
 
-        self.lower_end = 0.15
+        # lower and upper end need tuning
+        self.lower_end = 0.1
         self.upper_end = 0.4
         self.free_slot = None
 
@@ -25,29 +26,55 @@ class GetFreeSlot(Node):
             qos_profile=qos_policy
         )
 
-    def sub_callback(self, msg):
-        for i in range(len(msg)):
-            if msg[i] <= 0.09:
-                msg[i] = 4.0
+        self.create_timer(
+            0.5,
+            self.timer_callback
+        )
 
-        # check right side
-        right = 0
-        for item in msg[:180]:
-            if item > self.lower_end and item < self.upper_end:
-                right += 1
+    def sub_callback(self, msg):
+        ranges = msg.ranges
+
+        for i in range(len(ranges)):
+            if ranges[i] <= 0.09:
+                ranges[i] = 4.0
 
         # check left side
         left = 0
-        for item in msg[:180]:
+        for item in ranges[:180]:
             if item > self.lower_end and item < self.upper_end:
                 left += 1
+
+        # check right side
+        right = 0
+        for item in ranges[181:]:
+            if item > self.lower_end and item < self.upper_end:
+                right += 1
 
         # compare sides
         if left < right:
             self.free_slot = "left"
         elif left > right:
             self.free_slot = "right"
+        else:
+            print("error")
 
     def get_free(self):
         return self.free_slot
     
+    def timer_callback(self):
+        print(self.get_free())
+    
+
+# main
+def main():
+    rclpy.init()
+    node = GetFreeSlot()
+    rclpy.spin(node)
+    node.destroy_node()
+    rclpy.shutdown()
+
+    exit(0)
+
+
+if __name__ == '__main__':
+    main()
