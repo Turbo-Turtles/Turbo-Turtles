@@ -57,16 +57,16 @@ class LaneDetectionNode(Node):
     cv2.setTrackbarPos('Hue_white_min', 'white_threshold', 0)
     cv2.setTrackbarPos('Hue_white_max', 'white_threshold', 179)
     cv2.setTrackbarPos('Sat_white_min', 'white_threshold', 0)
-    cv2.setTrackbarPos('Sat_white_max', 'white_threshold', 40)
-    cv2.setTrackbarPos('Val_white_min', 'white_threshold', 210)
+    cv2.setTrackbarPos('Sat_white_max', 'white_threshold', 120)
+    cv2.setTrackbarPos('Val_white_min', 'white_threshold', 180)
     cv2.setTrackbarPos('Val_white_max', 'white_threshold', 255)
 
     cv2.setTrackbarPos('Hue_yellow_min','yellow_threshold', 25)
     cv2.setTrackbarPos('Hue_yellow_max','yellow_threshold', 50)
     cv2.setTrackbarPos('Sat_yellow_min','yellow_threshold', 55)
-    cv2.setTrackbarPos('Sat_yellow_max','yellow_threshold', 190)
-    cv2.setTrackbarPos('Val_yellow_min','yellow_threshold', 105)
-    cv2.setTrackbarPos('Val_yellow_max','yellow_threshold', 225)
+    cv2.setTrackbarPos('Sat_yellow_max','yellow_threshold', 220)
+    cv2.setTrackbarPos('Val_yellow_min','yellow_threshold', 90)
+    cv2.setTrackbarPos('Val_yellow_max','yellow_threshold', 240)
     
 
     """
@@ -114,7 +114,7 @@ class LaneDetectionNode(Node):
     cv2.createTrackbar('p4_x','crop_image',0,100,nothing)
 
     # Set default value for image cropping trackbars.
-    cv2.setTrackbarPos('p12_y', 'crop_image', 70)
+    cv2.setTrackbarPos('p12_y', 'crop_image', 85)
     cv2.setTrackbarPos('p2_x', 'crop_image', 100)
     cv2.setTrackbarPos('p4_x', 'crop_image', 100)
 
@@ -173,6 +173,13 @@ class LaneDetectionNode(Node):
             self.pub_image_lane.publish(self.cv_bridge.cv2_to_compressed_imgmsg(result, "jpg"))
             cv2.imshow("Lane Detection driving line", result)
             cv2.waitKey(1)'''
+        
+        cv2.moveWindow('crop_image', 0, 0)
+        cv2.moveWindow('yellow_threshold', 450, 0)
+        cv2.moveWindow('white_threshold', 900, 0)
+        cv2.moveWindow('Lane Detection driving line', 0, 550)
+        cv2.moveWindow('roi_edges_y', 450, 550)
+        cv2.moveWindow('roi_edges_w', 900, 550)
 
 
 
@@ -432,10 +439,14 @@ class LaneDetectionNode(Node):
             image_center = self.window_width / 2
             deviation = lane_center[0] - image_center
 
+            velocity, steering_angle, img = self.clac_driving_parameters(max_vel, kp, deviation, img, center_lane)
+
+
+            '''
             # Draw the center lane on the image
             #__+__cv2.line(img, lane_center, (int(self.window_width/2), self.window_height), (0, 0, 255), 5)
             cv2.line(img, center_lane[0], center_lane[1], (0, 0, 255), 5)
-
+            
             if self.first == True:
                 self.old_deviation = deviation
                 self.first = False
@@ -453,18 +464,49 @@ class LaneDetectionNode(Node):
             elif deviation < -100:
                 steering_angle = 1.0
                 velocity = -max_vel/(deviation*kp*2)
+            '''
 
-        elif white_lane is None:
-            steering_angle = -0.2
-            velocity = max_vel/5
+        elif white_lane is None and yellow_lane is not None:
+            '''steering_angle = -0.2
+            velocity = max_vel/5'''
 
-        elif yellow_lane is None:
-            steering_angle = 0.2
-            velocity = max_vel/5
+            y1, y2 = yellow_lane
+
+            deviation = (y2[0] - y1[0])/2
+            if deviation < 0:
+                deviation = 0
+                self.first = True
+            
+            center_lane = ((int((self.window_width + deviation)/2), int(self.window_height/2)),(int(self.window_width/2), int(self.window_height)))
+
+            velocity, steering_angle, img = self.clac_driving_parameters(max_vel, kp, deviation, img, center_lane)
+
+        elif yellow_lane is None and white_lane is not None:
+            '''steering_angle = 0.2
+            velocity = max_vel/5'''
+
+            w1, w2 = white_lane
+
+            deviation = (w2[0] - w1[0])/2
+            if deviation > 0:
+                deviation = 0
+                self.first = True
+            
+            center_lane = ((int((self.window_width + deviation)/2), int(self.window_height/2)),(int(self.window_width/2), int(self.window_height)))
+
+            velocity, steering_angle, img = self.clac_driving_parameters(max_vel, kp, deviation, img, center_lane)
 
         else:
-            steering_angle = 0.2
-            velocity = 0
+            steering_angle = 0.0
+            velocity = max_vel/2
+
+            center_lane = ((int(self.window_width/2), int(self.window_height/1.5)),(int(self.window_width/2), int(self.window_height)))
+
+            # Draw the center lane on the image
+            #__+__cv2.line(img, lane_center, (int(self.window_width/2), self.window_height), (0, 0, 255), 5)
+            cv2.line(img, center_lane[0], center_lane[1], (0, 0, 255), 5)
+
+
 
         # Display the image with the lanes
         self.pub_image_lane.publish(self.cv_bridge.cv2_to_compressed_imgmsg(img, "jpg"))
@@ -480,6 +522,35 @@ class LaneDetectionNode(Node):
 
         # Publish the twist message to control the TurtleBot3
         self.pub_vel_cmd.publish(twist_msg)
+
+    
+    def clac_driving_parameters(self, max_vel, kp, deviation, img, center_lane):
+        velocity = max_vel
+        steering_angle = 0.0
+        
+        # Draw the center lane on the image
+        #__+__cv2.line(img, lane_center, (int(self.window_width/2), self.window_height), (0, 0, 255), 5)
+        cv2.line(img, center_lane[0], center_lane[1], (0, 0, 255), 5)
+
+        if self.first == True:
+            self.old_deviation = deviation
+            self.first = False
+
+        if abs(self.old_deviation - deviation) > 50:
+            deviation = self.old_deviation
+
+        # Calculate the desired steering angle based on the deviation and control parameters
+        if deviation < 100 and deviation > -100:
+            steering_angle = kp * -deviation
+            velocity = max_vel
+        elif deviation > 100:
+            steering_angle = -1.0
+            velocity = max_vel/(deviation*kp*2)
+        elif deviation < -100:
+            steering_angle = 1.0
+            velocity = -max_vel/(deviation*kp*2)
+
+        return velocity, steering_angle, img
     
 
 
