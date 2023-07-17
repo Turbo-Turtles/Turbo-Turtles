@@ -108,6 +108,7 @@ class LaneDetectionNode(Node):
         self.pub_progress = self.create_publisher(Progress, '/mission_progress', 1)
 
         self.state = None
+        self.state = None
         self.counter = 0
         self.counter_set = 10
         self.parking_state = 0
@@ -182,6 +183,7 @@ class LaneDetectionNode(Node):
                 pass
 
         cv2.waitKey(1)
+        
         
         cv2.moveWindow('crop_image', 0, 0)
         cv2.moveWindow('yellow_threshold', 450, 0)
