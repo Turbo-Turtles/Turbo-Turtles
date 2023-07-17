@@ -167,8 +167,8 @@ class ConstructionMission(Node):
 
         rel_pose.header.frame_id = 'map'
         rel_pose.header.stamp = self.navigator_.get_clock().now().to_msg()
-        rel_pose.pose.position.x = pose.pose.position.x + rel_x * cos(angle / 57.3) + rel_y * sin(angle / 57.3)
-        rel_pose.pose.position.y = pose.pose.position.y + rel_x * sin(angle / 57.3) + rel_y * cos(angle / 57.3)
+        rel_pose.pose.position.x = pose.pose.position.x + rel_x * cos(angle / 57.3) + rel_y * cos((angle + 90) / 57.3)
+        rel_pose.pose.position.y = pose.pose.position.y + rel_x * sin(angle / 57.3) + rel_y * sin((angle + 90) / 57.3)
         rel_pose.pose.orientation.z = z
         rel_pose.pose.orientation.w = w
 
