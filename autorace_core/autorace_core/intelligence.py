@@ -68,6 +68,10 @@ class Intelligence(Node):
         # this enables the lane following again
         elif msg.sender == "nav2":
             self.lane_following_active = True
+        
+        # if a turn is completed
+        elif msg.sender == "turn":
+            self.lane_following_active = True
     
     def sign_callback(self, msg):
         # if active section traffic
@@ -96,8 +100,10 @@ class Intelligence(Node):
         if self.active_section == 1:
             if msg.sign == "left":
                 self.turn = 2
+                self.lane_following_active = False
             elif msg.sign == "right":
                 self.turn = 1
+                self.lane_following_active = False
 
             if msg.sign == "contruction":
                 self.active_section += 1
