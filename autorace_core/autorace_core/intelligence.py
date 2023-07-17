@@ -46,6 +46,12 @@ class Intelligence(Node):
             1
         )
 
+        self.pub_lane = self.create_publisher(
+            Mission,
+            'lane_state',
+            1
+        )
+
         # timer
         self.updater = self.create_timer(
             0.02,
@@ -159,7 +165,7 @@ class Intelligence(Node):
             msg = Mission()
             msg.mission_name = "lane"
             msg.state = self.lane_following_active
-            self.pub_mission(msg)
+            self.pub_lane(msg)
 
             # signal an upcoming turn
             if self.lane_following_active and self.turn != 0:
@@ -175,7 +181,7 @@ class Intelligence(Node):
             msg = Mission()
             msg.mission_name = "lane"
             msg.state = False
-            self.pub_mission(msg)
+            self.pub_lane(msg)
 
             # stop execution
             raise SystemExit
