@@ -4,6 +4,7 @@ from rclpy.node import Node
 from sensor_msgs.msg import CompressedImage
 from std_msgs.msg import String
 import pynput
+from turtlebot3_interfaces.msg import Sign
 
 
 # create node class
@@ -22,8 +23,8 @@ class SignDetection(Node):
             10
         )
         self.publisher_sign = self.create_publisher(
-            String,
-            "/sign_detection/sign",
+            Sign,
+            "sign",
             10
         )
         
@@ -53,8 +54,8 @@ if __name__ == "__main__":
     main()
 
 def on_press(key):
-    pressed_key = String()
-    pressed_key.data = sign(str(key))
+    pressed_key = Sign()
+    pressed_key.sign, pressed_key.state = sign(str(key))
 
     sign_detection_node.publish_sign(pressed_key)
     rclpy.spin_once(sign_detection_node)
@@ -64,35 +65,45 @@ def on_release(key):
     rclpy.spin_once(sign_detection_node)
     
 def sign(key):
+    a = ""
+    b = 0
+
     match key:
         case "'1'":
-            return "stop"
+            a = "stop"
         case "'2'":
-            return "train"
+            a = "train"
         case "'3'":
-            return "crossing"
+            a = "crossing"
         case "'4'":
-            return "construction"
+            a = "construction"
         case "'5'":
-            return "parking"
+            a = "parking"
         case "'6'":
-            return "tunnel"
+            a = "tunnel"
         case "'l'":
-            return "left"
+            a = "left"
         case "'r'":
-            return "right"
+            a = "right"
         case "'7'":
-            return "red"
+            a = "traffic"
+            b = 0
         case "'8'":
-            return "yellow"
+            a = "traffic"
+            b = 1
         case "'9'":
-            return "green"
+            a = "traffic"
+            b = 2
         case "'o'":
-            return "opened"
+            a = "crossing"
+            a = 1
         case "'c'":
-            return "closed" 
+            a = "crossing"
+            b = 0
         case _:
-            return "no assignment"
+            a = "no assignment"
+
+    return a, b
         
 def legend():
     print(

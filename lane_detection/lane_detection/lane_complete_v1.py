@@ -121,23 +121,23 @@ class LaneDetectionNode(Node):
         self.state = msg
 
         if self.state.mission_name == 'lane':
-            if self.state.colplete == True:
+            if self.state.complete == True:
                 self.do = 'lane'
             else:
                 self.do = None
 
         if self.state.mission_name == 'right':
-            if self.state.colplete == True:
+            if self.state.complete == True:
                 self.do = 'right'
             else:
                 self.do = None
         elif self.state.mission_name == 'left':
-            if self.state.colplete == True:
+            if self.state.complete == True:
                 self.do = 'left'
             else:
                 self.do = None
         elif self.state.mission_name == 'parking':
-            if self.state.colplete == True:
+            if self.state.complete == True:
                 self.do = 'parking'
             else:
                 self.do = None

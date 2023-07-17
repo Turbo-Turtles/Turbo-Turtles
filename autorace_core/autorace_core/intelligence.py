@@ -176,7 +176,7 @@ class Intelligence(Node):
                 msg = Mission()
                 msg.mission_name = "lane"
                 msg.complete = self.lane_following_active
-                self.pub_mission(msg)
+                self.pub_mission.publish(msg)
 
             # signal an upcoming turn
             if self.turn != 0:
@@ -186,7 +186,7 @@ class Intelligence(Node):
                 msg = Mission()
                 msg.mission_name = self.turns[-self.turn]
                 msg.complete = True
-                self.pub_mission(msg)
+                self.pub_mission.publish(msg)
 
         else:
             print("end everything")
@@ -194,7 +194,7 @@ class Intelligence(Node):
             msg = Mission()
             msg.mission_name = "lane"
             msg.complete = False
-            self.pub_mission(msg)
+            self.pub_mission.publish(msg)
 
             # stop execution
             raise SystemExit
