@@ -81,6 +81,16 @@ def sign(key):
             return "left"
         case "'r'":
             return "right"
+        case "'7'":
+            return "red"
+        case "'8'":
+            return "yellow"
+        case "'9'":
+            return "green"
+        case "'o'":
+            return "opened"
+        case "'c'":
+            return "closed" 
         case _:
             return "no assignment"
         
@@ -94,4 +104,9 @@ def legend():
         "6: Tunnel\n"
         "L: Left\n"
         "R: Right\n"
+        "7: Red Ligh\n"
+        "8: Yellow Light\n"
+        "9: Green Light\n"
+        "O: Barrier opened\n"
+        "C: Barrier closed\n"
     )
