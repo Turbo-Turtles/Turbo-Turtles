@@ -132,19 +132,19 @@ class ConstructionMission(Node):
             if result == TaskResult.SUCCEEDED:
                 print('Goal succeeded!')
                 progress_msg.sender = "nav2"
-                progress_msg.state = 1
+                progress_msg.state = True
             elif result == TaskResult.CANCELED:
                 print('Goal was canceled!')
                 progress_msg.sender = "nav2"
-                progress_msg.state = 0
+                progress_msg.state = False
             elif result == TaskResult.FAILED:
                 print('Goal failed!')
                 progress_msg.sender = "nav2"
-                progress_msg.state = 0
+                progress_msg.state = False
             else:
                 print('Goal has an invalid return status!')
                 progress_msg.sender = "nav2"
-                progress_msg.state = 0
+                progress_msg.state = False
 
             self.pub_progress(progress_msg)
 
