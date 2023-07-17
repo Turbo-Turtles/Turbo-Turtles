@@ -17,10 +17,8 @@ find_package(rosidl_default_generators REQUIRED)
 rosidl_generate_interfaces(${PROJECT_NAME}
   "msg/Drive.msg"
   "msg/Mission.msg"
-  "srv/MinRange.srv"
-  "srv/GetPosition.srv"
-
-  DEPENDENCIES geometry_msgs
+  "msg/Progress.msg"
+  "msg/Sign.msg"
 )
 
 if(BUILD_TESTING)
