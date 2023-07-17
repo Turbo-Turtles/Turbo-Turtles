@@ -206,11 +206,27 @@
 
 - ### Progress
 
+  - implement concepts for missions:
+    - lane following (improve)
+  - set up nav2 start conditions (does not work)
+  - intelligence node (more or less ready)
+  - get side of free parking lot (left or right)
+
 ## Week 13
 
 - ### Goals
 
+  - implement concepts for missions:
+    - lane following (improve)
+    - level crossing (barrier open/close)
+    - intersection
+  - improve reliability of lidar operations (to try and deal with rotated maps)
+  - write master launch file
+
 - ### Progress
+  - funktional lane-detection and folowing:
+    - https://drive.google.com/file/d/1UVDFkxfAGLyFhpDvHsOGX22yZXScSpMA/view?usp=drive_link
+    - https://drive.google.com/file/d/1-KtptbQu3tR5GvTf9OMt2LUDCxbtlnD4/view?usp=drive_link
 
 ## Week 14
 
