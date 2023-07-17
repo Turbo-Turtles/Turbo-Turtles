@@ -15,6 +15,7 @@ class Intelligence(Node):
         self.active_section = 0
         self.section_changed = False
         self.lane_following_active = False
+        self.lane_changed = False
         self.turn = 0
 
         self.running = True
@@ -46,11 +47,11 @@ class Intelligence(Node):
             1
         )
 
-        self.pub_lane = self.create_publisher(
-            Mission,
-            'lane_state',
-            1
-        )
+        # self.pub_lane = self.create_publisher(
+        #     Mission,
+        #     'lane_state',
+        #     1
+        # )
 
         # timer
         self.updater = self.create_timer(
@@ -164,30 +165,33 @@ class Intelligence(Node):
 
                 msg = Mission()
                 msg.mission_name = self.sections[self.active_section]
-                msg.state = True
+                msg.complete = True
                 self.pub_mission(msg)
 
             # publish state of lane following
-            msg = Mission()
-            msg.mission_name = "lane"
-            msg.state = self.lane_following_active
-            self.pub_lane(msg)
+            if self.lane_changed != self.lane_following_active:
+                self.lane_changed = self.lane_following_active
+
+                msg = Mission()
+                msg.mission_name = "lane"
+                msg.complete = self.lane_following_active
+                self.pub_mission(msg)
 
             # signal an upcoming turn
-            if self.lane_following_active and self.turn != 0:
+            if self.turn != 0:
                 self.turn = 0
 
                 msg = Mission()
                 msg.mission_name = self.turns[-self.turn]
-                msg.state = self.lane_following_active
+                msg.complete = True
                 self.pub_mission(msg)
 
         else:
             # end lane following
             msg = Mission()
             msg.mission_name = "lane"
-            msg.state = False
-            self.pub_lane(msg)
+            msg.complete = False
+            self.pub_mission(msg)
 
             # stop execution
             raise SystemExit
