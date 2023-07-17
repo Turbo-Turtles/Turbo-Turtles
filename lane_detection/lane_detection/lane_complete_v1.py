@@ -101,8 +101,7 @@ class LaneDetectionNode(Node):
         self.cv_bridge = CvBridge()
 
         self.sub_image_original = self.create_subscription(CompressedImage, "/image_raw/compressed", self.image_callback, 1) #create image subscriber
-        self.sub_lane_state = self.create_subscription(Mission, '/lane_state')
-        self.sub_mission_state = self.create_subscription(Mission, '/mission')
+        self.sub_mission_state = self.create_subscription(Mission, '/mission', self.mission_state, 1) #
 
         self.pub_vel_cmd = self.create_publisher(Twist, "cmd_vel", 1) #create movement value publisher
         self.pub_image_lane = self.create_publisher(CompressedImage, "/lane_image_out", 1) #create lane image publisher
@@ -115,6 +114,10 @@ class LaneDetectionNode(Node):
         self.old_deviation = 0
         self.first = True
         self.parking_done = False
+
+    
+    def mission_state(self, msg):
+        self.state = msg.mission_name
 
     
     def image_callback(self, img_msg):
@@ -130,9 +133,6 @@ class LaneDetectionNode(Node):
 
         # croping image for RIO
         croped_img = self.crop_image(self.cv_image)
-        
-        '''self.state = getState() 'lane_state'
-        if self.state = '''
 
         match self.state:
             case 0:
