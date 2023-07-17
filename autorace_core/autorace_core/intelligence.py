@@ -161,6 +161,7 @@ class Intelligence(Node):
             # publish the current mission, if the section changed
             if self.section_changed:
                 self.section_changed = False
+                print(self.sections[self.active_section])
 
                 msg = Mission()
                 msg.mission_name = self.sections[self.active_section]
@@ -170,6 +171,7 @@ class Intelligence(Node):
             # publish state of lane following
             if self.lane_changed != self.lane_following_active:
                 self.lane_changed = self.lane_following_active
+                print(self.lane_following_active)
 
                 msg = Mission()
                 msg.mission_name = "lane"
@@ -179,6 +181,7 @@ class Intelligence(Node):
             # signal an upcoming turn
             if self.turn != 0:
                 self.turn = 0
+                print(self.turns[-self.turn])
 
                 msg = Mission()
                 msg.mission_name = self.turns[-self.turn]
@@ -186,6 +189,7 @@ class Intelligence(Node):
                 self.pub_mission(msg)
 
         else:
+            print("end everything")
             # end lane following
             msg = Mission()
             msg.mission_name = "lane"

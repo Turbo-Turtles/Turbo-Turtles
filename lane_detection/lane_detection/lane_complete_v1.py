@@ -107,7 +107,7 @@ class LaneDetectionNode(Node):
         self.pub_image_lane = self.create_publisher(CompressedImage, "/lane_image_out", 1) #create lane image publisher
         self.pub_progress = self.create_publisher(Progress, '/mission_progress', 1)
 
-        self.state = 1
+        self.state = None
         self.counter = 0
         self.counter_set = 10
         self.parking_state = 0
@@ -115,11 +115,33 @@ class LaneDetectionNode(Node):
         self.first = True
         self.parking_done = False
 
-    
-    def mission_state(self, msg):
-        self.state = msg.mission_name
 
-    
+    def mission_state(self, msg):
+        self.state = msg
+
+        if self.state.mission_name == 'lane':
+            if self.state.colplete == True:
+                self.do = 'lane'
+            else:
+                self.do = None
+
+        if self.state.mission_name == 'right':
+            if self.state.colplete == True:
+                self.do = 'right'
+            else:
+                self.do = None
+        elif self.state.mission_name == 'left':
+            if self.state.colplete == True:
+                self.do = 'left'
+            else:
+                self.do = None
+        elif self.state.mission_name == 'parking':
+            if self.state.colplete == True:
+                self.do = 'parking'
+            else:
+                self.do = None
+
+
     def image_callback(self, img_msg):
         self.cv_image = self.cv_bridge.compressed_imgmsg_to_cv2(img_msg, "bgr8")
 
@@ -134,53 +156,7 @@ class LaneDetectionNode(Node):
         # croping image for RIO
         croped_img = self.crop_image(self.cv_image)
 
-        match self.state:
-            case 0:
-                pass
-            case 1:
-                self.lane_following(croped_img)
-            case 2:
-                self.right_turn()
-
-                self.state = 0
-                progress_msg.state = True
-                progress_msg.sender = 'turn'
-                self.pub_progress.publish(progress_msg)
-            case 3:
-                self.left_turn()
-                
-                self.state = 0
-                progress_msg.state = True
-                progress_msg.sender = 'turn'
-                self.pub_progress.publish(progress_msg)
-            case 4:self.state = None
-        self.counter = 0
-        self.counter_set = 10
-        self.parking_state = 0
-        self.old_deviation = 0
-        self.first = True
-        self.parking_done = False
-
-    
-    def mission_state(self, msg):
-        self.state = msg.mission_name
-
-
-    def image_callback(self, img_msg):
-        self.cv_image = self.cv_bridge.compressed_imgmsg_to_cv2(img_msg, "bgr8")
-
-        height, width = self.cv_image.shape[:2]
-        self.window_width = width
-        self.window_height = height
-        self.window_size = width * height
-
-        '''progress_msg = Progress()'''
-
-
-        # croping image for RIO
-        croped_img = self.crop_image(self.cv_image)
-
-        match self.state:
+        match self.do:
             case 'lane':
                 self.lane_following(croped_img)
             case 'right':
@@ -192,7 +168,7 @@ class LaneDetectionNode(Node):
                 self.pub_progress.publish(progress_msg)
             case 'left':
                 self.left_turn()
-                
+
                 self.state = 0
                 progress_msg.state = True
                 progress_msg.sender = 'turn'
@@ -201,15 +177,9 @@ class LaneDetectionNode(Node):
                 self.parking(croped_img)
                 if self.parking_done == True:
                     self.state = 0
-                    self.parking_done = False
+                    self.parkingdone = False
             case _:
                 pass
-
-        cv2.waitKey(1)
-                self.parking(croped_img)
-                if self.parking_done == True:
-                    self.state = 0
-                    self.parking_done = False
 
         cv2.waitKey(1)
         
