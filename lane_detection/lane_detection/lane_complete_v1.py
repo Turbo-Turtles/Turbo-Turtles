@@ -9,10 +9,9 @@ from cv_bridge import CvBridge
 from geometry_msgs.msg import Twist, PoseStamped
 from sensor_msgs.msg import CompressedImage
 from math import acos
-'''from lidar_navigation.free_lot import GetFreeSlot
-from turtlebot3_interfaces.msg import Progress
-from turtlebot3_interfaces.msg import Mission
-from lidar_navigation.position_listener import PositionListener'''
+from lidar_navigation.free_lot import GetFreeSlot
+from turtlebot3_interfaces.msg import Progress, Mission
+from lidar_navigation.position_listener import PositionListener
 
 class LaneDetectionNode(Node):
 
@@ -102,12 +101,12 @@ class LaneDetectionNode(Node):
         self.cv_bridge = CvBridge()
 
         self.sub_image_original = self.create_subscription(CompressedImage, "/image_raw/compressed", self.image_callback, 1) #create image subscriber
-        '''self.sub_lane_state = self.create_subscription(Mission, '/lane_state') #
-        self.sub_mission_state = self.create_subscription(Mission, '/mission') #'''
+        self.sub_lane_state = self.create_subscription(Mission, '/lane_state')
+        self.sub_mission_state = self.create_subscription(Mission, '/mission')
 
         self.pub_vel_cmd = self.create_publisher(Twist, "cmd_vel", 1) #create movement value publisher
         self.pub_image_lane = self.create_publisher(CompressedImage, "/lane_image_out", 1) #create lane image publisher
-        '''self.pub_progress = self.create_publisher(Progress, '/mission_progress', 1) #'''
+        self.pub_progress = self.create_publisher(Progress, '/mission_progress', 1)
 
         self.state = 1
         self.counter = 0
@@ -126,7 +125,7 @@ class LaneDetectionNode(Node):
         self.window_height = height
         self.window_size = width * height
 
-        '''progress_msg = Progress()'''
+        progress_msg = Progress()
 
 
         # croping image for RIO
