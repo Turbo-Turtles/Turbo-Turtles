@@ -6,8 +6,13 @@ import cv2
 import numpy as np
 from rclpy.node import Node
 from cv_bridge import CvBridge
-from geometry_msgs.msg import Twist
+from geometry_msgs.msg import Twist, PoseStamped
 from sensor_msgs.msg import CompressedImage
+from math import acos
+'''from lidar_navigation.free_lot import GetFreeSlot
+from turtlebot3_interfaces.msg import Progress
+from turtlebot3_interfaces.msg import Mission
+from lidar_navigation.position_listener import PositionListener'''
 
 class LaneDetectionNode(Node):
 
@@ -97,16 +102,20 @@ class LaneDetectionNode(Node):
         self.cv_bridge = CvBridge()
 
         self.sub_image_original = self.create_subscription(CompressedImage, "/image_raw/compressed", self.image_callback, 1) #create image subscriber
+        '''self.sub_lane_state = self.create_subscription(Mission, '/lane_state') #
+        self.sub_mission_state = self.create_subscription(Mission, '/mission') #'''
 
         self.pub_vel_cmd = self.create_publisher(Twist, "cmd_vel", 1) #create movement value publisher
         self.pub_image_lane = self.create_publisher(CompressedImage, "/lane_image_out", 1) #create lane image publisher
+        '''self.pub_progress = self.create_publisher(Progress, '/mission_progress', 1) #'''
 
-        self.state = 0
+        self.state = 1
         self.counter = 0
-        self.counter_90_degree = 10
+        self.counter_set = 10
         self.parking_state = 0
         self.old_deviation = 0
         self.first = True
+        self.parking_done = False
 
     
     def image_callback(self, img_msg):
@@ -117,9 +126,14 @@ class LaneDetectionNode(Node):
         self.window_height = height
         self.window_size = width * height
 
+        '''progress_msg = Progress()'''
+
+
         # croping image for RIO
         croped_img = self.crop_image(self.cv_image)
-        self.state = getState()
+        
+        '''self.state = getState() 'lane_state'
+        if self.state = '''
 
         match self.state:
             case 0:
@@ -128,11 +142,25 @@ class LaneDetectionNode(Node):
                 self.lane_following(croped_img)
             case 2:
                 self.right_turn()
+
+                self.state = 0
+                progress_msg.state = True
+                progress_msg.sender = 'turn'
+                self.pub_progress.publish(progress_msg)
             case 3:
                 self.left_turn()
+                
+                self.state = 0
+                progress_msg.state = True
+                progress_msg.sender = 'turn'
+                self.pub_progress.publish(progress_msg)
             case 4:
                 self.parking(croped_img)
+                if self.parking_done == True:
+                    self.state = 0
+                    self.parking_done = False
 
+        cv2.waitKey(1)
         
         cv2.moveWindow('crop_image', 0, 0)
         cv2.moveWindow('yellow_threshold', 450, 0)
@@ -172,15 +200,12 @@ class LaneDetectionNode(Node):
         match self.parking_state:
             case 0:
                 self.left_turn()
-                self.counter =+ 1
-                if self.counter > self.counter_90_degree:
-                    self.parking_state = 1
-                    self.counter = 0
+                self.parking_state = 1
             case 1:
                 # find White and Yellow Lines
                 yellow_line_R = self.maskYellowLine_2(image)
                 yellow_line_L = self.maskYellowLine(image)
-                parking_line = self.maskWhite_Parking_Line(image)
+                parking_line = self.maskWhite_Parking_Line(img_parking_line)
                 
 
                 # Fit a line to each set of lane lines (left and right)
@@ -203,7 +228,7 @@ class LaneDetectionNode(Node):
                     self.parking_state = 2
             case 2:
                 self.spot_info = None
-                # get spot_info
+                self.spot_info = self.get_lot() # get spot_info
                 if self.spot_info is not None:
                     self.parking_state = 3
             case 3:
@@ -211,10 +236,7 @@ class LaneDetectionNode(Node):
                     self.hard_left_turn()
                 else:
                     self.hard_right_turn()
-                self.counter =+ 1
-                if self.counter > self.counter_90_degree:
-                    self.parking_state = 4
-                    self.counter = 0
+                self.parking_state = 4
             case 4:
                 # Create Twist message with desired linear and angular velocities
                 twist_msg = Twist()
@@ -224,12 +246,12 @@ class LaneDetectionNode(Node):
                 # Publish the twist message to control the TurtleBot3
                 self.pub_vel_cmd.publish(twist_msg)
                 self.counter =+ 1
-                if self.counter > self.counter_90_degree:
+                if self.counter > self.counter_set:
                     self.parking_state = 5
                     self.counter = 0
             case 5:
                 self.counter =+ 1
-                if self.counter > self.counter_90_degree:
+                if self.counter > self.counter_set:
                     self.parking_state = 6
                     self.counter = 0
             case 6:
@@ -241,7 +263,7 @@ class LaneDetectionNode(Node):
                 # Publish the twist message to control the TurtleBot3
                 self.pub_vel_cmd.publish(twist_msg)
                 self.counter =+ 1
-                if self.counter > self.counter_90_degree:
+                if self.counter > self.counter_set:
                     self.parking_state = 7
                     self.counter = 0
             case 7:
@@ -249,10 +271,7 @@ class LaneDetectionNode(Node):
                     self.hard_right_turn()
                 else:
                     self.hard_left_turn()
-                self.counter =+ 1
-                if self.counter > self.counter_90_degree:
-                    self.parking_state = 8
-                    self.counter = 0
+                self.parking_state = 8
             case 8:
                 # find White and Yellow Lines
                 yellow_line_R = self.maskYellowLine_2(image)
@@ -280,12 +299,9 @@ class LaneDetectionNode(Node):
                     self.parking_state = 9
             case 9:
                 self.left_turn()
-                self.counter =+ 1
-                if self.counter > self.counter_90_degree:
-                    self.parking_state = 10
-                    self.counter = 0
+                self.parking_state = 10
             case 10:
-                self.state = 0
+                self.parking_done = True
 
 
     def crop_image(self, image):
@@ -624,7 +640,12 @@ class LaneDetectionNode(Node):
         coeffs = np.polyfit(np.squeeze(x), np.squeeze(y), 1)
 
         # Calculate the start and end points of the lane line
-        y1 = self.window_height
+        y1 = 1
+        y2 = 1 
+        x1 = 1
+        x2 = 1
+        
+        y1 = int(self.window_height)
         y2 = int(self.window_height * 0.3)
         x1 = int((y1 - coeffs[1]) / coeffs[0])
         x2 = int((y2 - coeffs[1]) / coeffs[0])
@@ -634,7 +655,8 @@ class LaneDetectionNode(Node):
 
     def draw_lane_line(self, image, lane):
         if lane is not None:
-            cv2.line(image, lane[0], lane[1], (255, 150, 0), 10)
+            #cv2.line(image, lane[0], lane[1], (255, 150, 0), 10)
+            pass
         
         return image
 
@@ -642,7 +664,8 @@ class LaneDetectionNode(Node):
     def driving(self, white_lane, yellow_lane, img):
         # Define control parameters
         kp = 0.02  # Proportional gain
-        max_vel = 0.1  # Constant velocity
+        #max_vel = 0.1  # Constant velocity
+        max_vel = 0.0
         velocity = max_vel
         steering_angle = 0.0
 
@@ -745,44 +768,97 @@ class LaneDetectionNode(Node):
     
 
     def left_turn(self):
-        # Create Twist message with desired linear and angular velocities
-        twist_msg = Twist()
-        twist_msg.linear.x = 0.1
-        twist_msg.angular.z = -1.0
+        z, w = self.get_location()
+        angle = self.get_angle(z, w)
 
-        # Publish the twist message to control the TurtleBot3
-        self.pub_vel_cmd.publish(twist_msg)
+        while (angle -90) < self.get_angle(z, w):
+            # Create Twist message with desired linear and angular velocities
+            twist_msg = Twist()
+            twist_msg.linear.x = 0.1
+            twist_msg.angular.z = 1.0
+
+            # Publish the twist message to control the TurtleBot3
+            self.pub_vel_cmd.publish(twist_msg)
+
+        pass
 
 
     def right_turn(self):
-        # Create Twist message with desired linear and angular velocities
-        twist_msg = Twist()
-        twist_msg.linear.x = 0.1
-        twist_msg.angular.z = 1.0
+        z, w = self.get_location()
+        angle = self.get_angle(z, w)
 
-        # Publish the twist message to control the TurtleBot3
-        self.pub_vel_cmd.publish(twist_msg)
+        while (angle +90) > self.get_angle(z, w):
+            # Create Twist message with desired linear and angular velocities
+            twist_msg = Twist()
+            twist_msg.linear.x = 0.1
+            twist_msg.angular.z = -1.0
+
+            # Publish the twist message to control the TurtleBot3
+            self.pub_vel_cmd.publish(twist_msg)
+
+        pass
 
     
     def hard_left_turn(self):
-        # Create Twist message with desired linear and angular velocities
-        twist_msg = Twist()
-        twist_msg.linear.x = 0.0
-        twist_msg.angular.z = -1.0
+        z, w = self.get_location()
+        angle = self.get_angle(z, w)
 
-        # Publish the twist message to control the TurtleBot3
-        self.pub_vel_cmd.publish(twist_msg)
+        while (angle -90) < self.get_angle(z, w):
+            # Create Twist message with desired linear and angular velocities
+            twist_msg = Twist()
+            twist_msg.linear.x = 0.0
+            twist_msg.angular.z = 1.0
+
+            # Publish the twist message to control the TurtleBot3
+            self.pub_vel_cmd.publish(twist_msg)
+
+        pass
 
 
     def hard_right_turn(self):
-        # Create Twist message with desired linear and angular velocities
-        twist_msg = Twist()
-        twist_msg.linear.x = 0.0
-        twist_msg.angular.z = 1.0
+        z, w = self.get_location()
+        angle = self.get_angle(z, w)
 
-        # Publish the twist message to control the TurtleBot3
-        self.pub_vel_cmd.publish(twist_msg)
+        while (angle +90) > self.get_angle(z, w):
+            # Create Twist message with desired linear and angular velocities
+            twist_msg = Twist()
+            twist_msg.linear.x = 0.0
+            twist_msg.angular.z = -1.0
+
+            # Publish the twist message to control the TurtleBot3
+            self.pub_vel_cmd.publish(twist_msg)
+
+        pass
     
+
+    def get_lot(self):
+        # get free parking lot
+        get_free_lot = GetFreeSlot()
+        rclpy.spin_once(get_free_lot)
+        free_lot = get_free_lot.get_free()
+        get_free_lot.destroy_node()
+
+        return free_lot
+    
+
+    def get_angle(self, z, w):
+        # 57.3 deg are 1 rad
+        if z < 0:
+            angle = 360 - acos(w) * 2 * 57.3
+        else:
+            angle = acos(w) * 2 * 57.3
+
+        return angle
+    
+
+    def get_location(self):
+        # get current loaction
+        get_current_pose = PositionListener()
+        rclpy.spin_once(get_current_pose)
+        position = get_current_pose.get_position()
+        get_current_pose.destroy_node()
+
+        return position.pose.orientation.z, position.pose.orientation.w
 
 
     
