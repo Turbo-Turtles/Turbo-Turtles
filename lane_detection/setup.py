@@ -24,7 +24,8 @@ setup(
             "lane_det_1 = " + package_name + "lane_det_1:main",
             "lane_det_2 = " + package_name + "lane_det_2:main",
             "lane_det_3 = " + package_name + "lane_det_3:main",
-            "test = " + package_name + "test:main"
+            "test = " + package_name + "test:main",
+            "lane = " + package_name + ".lane_complete_v1:main",
         ],
     },
 )

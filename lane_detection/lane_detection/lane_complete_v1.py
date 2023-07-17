@@ -663,8 +663,7 @@ class LaneDetectionNode(Node):
     def driving(self, white_lane, yellow_lane, img):
         # Define control parameters
         kp = 0.02  # Proportional gain
-        #max_vel = 0.1  # Constant velocity
-        max_vel = 0.0
+        max_vel = 0.1  # Constant velocity
         velocity = max_vel
         steering_angle = 0.0
 

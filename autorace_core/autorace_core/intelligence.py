@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 import rclpy
 from rclpy.node import Node
-from rclpy.lifecycle import l
 
 from turtlebot3_interfaces.msg import Mission, Progress, Sign
 
