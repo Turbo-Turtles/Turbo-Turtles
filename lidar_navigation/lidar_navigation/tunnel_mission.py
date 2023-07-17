@@ -4,13 +4,14 @@ from rclpy.node import Node
 from rclpy.duration import Duration
 
 from geometry_msgs.msg import PoseStamped
-from turtlebot3_interfaces.msg import Mission
-
-from math import acos, sin, cos
+from turtlebot3_interfaces.msg import Mission, Progress
 
 from lidar_navigation.position_listener import PositionListener
 
 from nav2_simple_commander.robot_navigator import BasicNavigator, TaskResult
+
+from math import cos, acos, sin
+
 
 # class
 class TunnelMission(Node):
@@ -38,16 +39,21 @@ class TunnelMission(Node):
         self.start_pose.pose.position.y = self.y
         self.start_pose.pose.orientation.z = self.z
         self.start_pose.pose.orientation.w = self.w
-        self.navigator_.setInitialPose(self.start_pose)
 
+        # publisher
+        self.pub_progress = self.create_publisher(
+            Progress,
+            'progress',
+            1
+        )
+
+        # subscriber
         self.mission_sub_ = self.create_subscription(
             Mission,
             'mission',
             self.mission_callback,
             qos_profile=qos_policy
         )
-
-        rclpy.get_default_context().on_shutdown(self.navigator_.lifecycleShutdown)
 
     def mission_callback(self, msg):
         if msg.mission_name == "tunnel" and self.active == False:
@@ -103,14 +109,25 @@ class TunnelMission(Node):
             
             # Do something depending on the return code
             result = self.navigator_.getResult()
+            progress_msg = Progress()
             if result == TaskResult.SUCCEEDED:
                 print('Goal succeeded!')
+                progress_msg.sender = "nav2"
+                progress_msg.state = 1
             elif result == TaskResult.CANCELED:
                 print('Goal was canceled!')
+                progress_msg.sender = "nav2"
+                progress_msg.state = 0
             elif result == TaskResult.FAILED:
                 print('Goal failed!')
+                progress_msg.sender = "nav2"
+                progress_msg.state = 0
             else:
                 print('Goal has an invalid return status!')
+                progress_msg.sender = "nav2"
+                progress_msg.state = 0
+
+            self.pub_progress(progress_msg)
 
             self.navigator_.lifecycleShutdown()
 
@@ -155,9 +172,6 @@ class TunnelMission(Node):
         get_current_pose.destroy_node()
 
         return position.pose.position.x, position.pose.position.y, position.pose.orientation.z, position.pose.orientation.w
-
-    def exit_callback(self):
-        self.navigator_.lifecycleShutdown()
 
 
 # main

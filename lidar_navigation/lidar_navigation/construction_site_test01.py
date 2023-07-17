@@ -4,7 +4,7 @@ from rclpy.node import Node
 from rclpy.duration import Duration
 
 from geometry_msgs.msg import PoseStamped
-from turtlebot3_interfaces.msg import Mission
+from turtlebot3_interfaces.msg import Mission, Progress
 
 from lidar_navigation.map_recognition import MapRecognition
 from lidar_navigation.position_listener import PositionListener
@@ -30,7 +30,23 @@ class ConstructionMission(Node):
         # create navigator
         self.navigator_ = BasicNavigator()
 
+        # subscriber
         self.create_subscription(
+            Mission,
+            'mission',
+            self.mission_callback,
+            qos_profile=qos_policy
+        )
+
+        # publisher
+        self.pub_progress = self.create_publisher(
+            Progress,
+            'progress',
+            1
+        )
+
+        # subscriber
+        self.mission_sub_ = self.create_subscription(
             Mission,
             'mission',
             self.mission_callback,
@@ -112,14 +128,25 @@ class ConstructionMission(Node):
             
             # Do something depending on the return code
             result = self.navigator_.getResult()
+            progress_msg = Progress()
             if result == TaskResult.SUCCEEDED:
                 print('Goal succeeded!')
+                progress_msg.sender = "nav2"
+                progress_msg.state = 1
             elif result == TaskResult.CANCELED:
                 print('Goal was canceled!')
+                progress_msg.sender = "nav2"
+                progress_msg.state = 0
             elif result == TaskResult.FAILED:
                 print('Goal failed!')
+                progress_msg.sender = "nav2"
+                progress_msg.state = 0
             else:
                 print('Goal has an invalid return status!')
+                progress_msg.sender = "nav2"
+                progress_msg.state = 0
+
+            self.pub_progress(progress_msg)
 
             self.navigator_.lifecycleShutdown()
 
