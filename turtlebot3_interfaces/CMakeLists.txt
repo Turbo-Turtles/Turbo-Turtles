@@ -7,6 +7,7 @@ endif()
 
 # find dependencies
 find_package(ament_cmake REQUIRED)
+find_package(geometry_msgs REQUIRED)
 find_package(rosidl_default_generators REQUIRED)
 
 # uncomment the following section in order to fill in
@@ -15,6 +16,9 @@ find_package(rosidl_default_generators REQUIRED)
 
 rosidl_generate_interfaces(${PROJECT_NAME}
   "msg/Drive.msg"
+  "msg/Mission.msg"
+  "msg/Progress.msg"
+  "msg/Sign.msg"
 )
 
 if(BUILD_TESTING)

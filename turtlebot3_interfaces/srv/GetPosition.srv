@@ -1,0 +1,4 @@
+# Requests the current position
+
+---
+geometry_msgs/PoseStamped position
