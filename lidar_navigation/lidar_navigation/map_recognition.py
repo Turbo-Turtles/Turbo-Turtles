@@ -1,7 +1,5 @@
 from lidar_navigation.position_listener import PositionListener
 
-from time import sleep
-
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -12,18 +10,22 @@ from nav_msgs.msg import OccupancyGrid
 
 from geometry_msgs.msg import PoseStamped
 
+from math import sqrt, cos, acos, sin
 
 class MapRecognition(Node):
-    def __init__(self):
+    def __init__(self, angle):
         super().__init__("map_recognition")
+
+        self.angle = angle
+        self.a = 22
+        self.b = 30
 
         self.threshold = 10
         self.background = [0., 0., 0.]
         self.center = [1., .0, .0]
         self.bot = [.0, 1., .0]
         self.waypoint = [.0, .0, 1.]
-        self.adjacent1 = [[0,-1], [-1,0], [-1,-1], [-1,1]]    # W, N, NW, NE
-        self.adjacent2 = [[0,1], [1,0], [1,-1], [1,1]]    # O, S, SW, SE
+        self.adjacent = [[0,-1], [-1,0], [-1,-1], [-1,1]]    # W, N, NW, NE
 
         self.saved = False
 
@@ -63,33 +65,62 @@ class MapRecognition(Node):
 # maybe this should be in construction_site file and be replaced by get_coords
 # the returned coordinates can than be specifically used in the receiving scipt
     def get_waypoints(self):
-        x, y, z, w = self.get_location()
+        # get location
+        x, y = self.get_location()
+
+        # calculate coords of the robot for matplotlib coordinate system
         robot_x, robot_y = (x - self.map.info.origin.position.x) / self.map.info.resolution, (y - self.map.info.origin.position.y) / self.map.info.resolution
+
+        # invert map    
         data = self.prepare_data(self.map.data, self.map.info.height, self.map.info.width)
-        end_img = data
-        label_img, label_amount = self.two_pass(data, self.map.info.height, self.map.info.width)
 
-        end_img[int(robot_y)][int(robot_x)] = self.bot
+        # get rect of view field
+        x, y, x_a, y_a, x_b, y_b, x_ab, y_ab = self.get_rect(robot_x, robot_y, self.angle, self.a, self.b)
 
-        coords = self.find_coords(label_img, label_amount, robot_x, robot_y, self.map.info.width, self.map.info.height)
+        # optimize view field to be aligned
+        x1, y1, x2, y2 = self.get_big_rect(x, y, x_a, y_a, x_b, y_b, x_ab, y_ab)
+
+        # apply two-pass algorithm (label connected areas)
+        label_img, label_amount = self.two_pass(data, self.map.info.height, self.map.info.width, x1, y1, x2, y2)
+
+        # get center coords of obstacles
+        coords = self.find_coords(label_img, label_amount, x1, y1, x2, y2)   # check in view field
+
+        # check if coords are in view field
+        for coord in coords:
+            print(coord)
+            if self.check_in_rect((coord[1], coord[0]),(x, y, x_a, y_a, x_b, y_b, x_ab, y_ab)):
+                data[coord[0]][coord[1]] = self.center
+            else:
+                coords.remove(coord)
+
+        # set and visualize waypoints
+        waypoints = self.create_waypoints(coords, robot_x, robot_y, x_a, y_a, x_b, y_b)
+
+###########
+# not needed -> can be deleted after successful tests
+
+        # paint stuff
+        data[int(robot_y)][int(robot_x)] = self.bot
+
+        data[int(robot_y + self.a*sin(self.angle / 57.3))][int(robot_x + self.a*cos(self.angle / 57.3))] = self.bot
+        data[int(robot_y + self.b*sin((self.angle + 90) / 57.3))][int(robot_x + self.b*cos((self.angle + 90) / 57.3))] = self.bot
 
         for coord in coords:
-            end_img[coord[0]][coord[1]] = self.center
-
-        print(len(coords))
-        print(coords)
-
-        waypoints = self.create_waypoints(coords, robot_x, robot_y)
+            data[coord[0]][coord[1]] = self.center
 
         for wp in waypoints:
-            end_img[int(wp[0])][int(wp[1])] = self.waypoint
+            data[int(robot_y) + int(wp[1] / self.map.info.resolution)][int(robot_x) + int(wp[0] / self.map.info.resolution)] = self.waypoint
+            print(wp)
 
-        plt.imshow(end_img, interpolation='None')
+        plt.imshow(data, interpolation='None')
         ax = plt.gca()
         ax.invert_yaxis()
         plt.show()
 
-        return self.convert_waypoints(waypoints)
+###########
+
+        return waypoints
 ###################################################################
 
     def prepare_data(self, data, M, N):
@@ -110,27 +141,22 @@ class MapRecognition(Node):
 
 ###################################################################
 # two pass algorithm with coords for all obstacles
-    def two_pass(self, data, M, N):
+    def two_pass(self, data, M, N, x1, y1, x2, y2):
         linked = []
         labels = np.zeros((M,N))
         nextLabel = 1
 
         # first pass
-        for row in range(len(data)):
-            for column in range(len(data[row])):
+        for row in range(y1, y2+1):
+            for column in range(x1, x2+1):
                 # if not background
                 if data[row][column].tolist() != self.background:
                     # get all neighbors (W, N, NW, NE)
                     neighbors = []
-                    neighbors_labels = []
-                    for direction in self.adjacent1:
-                        try:
+                    for direction in self.adjacent:
+                        if row+direction[0] in range(y1, y2+1) and column+direction[1] in range(x1, x2+1):
                             if data[row+direction[0]][column+direction[1]].tolist() != self.background:
-                                neighbors.append(data[row+direction[0]][column+direction[1]])
-                                neighbors_labels.append(labels[row+direction[0]][column+direction[1]])
-                        except:
-                            print('doesnt exist! out of image!')
-
+                                neighbors.append(labels[row+direction[0]][column+direction[1]])
                     # create new label if no neighbors found
                     if len(neighbors) == 0:
                         linked.append([nextLabel])
@@ -139,47 +165,34 @@ class MapRecognition(Node):
 
                     else:
                         # find smallest label of neighbors
-                        L = neighbors_labels
-                        labels[row][column] = min(L)
-                        for label in L:
-                            linked[int(label)-1].append(L)
-
+                        labels[row][column] = int(min(neighbors))
+                        for label in neighbors:
+                            for L in neighbors:
+                                if int(L) not in linked[int(label)-1]:
+                                    linked[int(label)-1].append(int(L))
+                
         # second pass
-        for row in range(len(data)):
-            for column in range(len(data[row])):
-                if data[row][column].tolist() != self.background:
-                    # get all neighbors (O, S, SW, SE)
-                    neighbors_labels = []
-                    for direction in self.adjacent2:
-                        try:
-                            if data[row+direction[0]][column+direction[1]].tolist() != self.background:
-                                neighbors_labels.append(labels[row+direction[0]][column+direction[1]])
-                        except:
-                            # print('doesnt exist! out of image!')
-                            pass
+        for i in range(len(linked)):
+            for item in linked[i]:
+                for a in linked[item-1]:
+                    if a not in linked[i]:
+                        linked[i].append(a)
 
-                    if len(neighbors_labels) > 0:
-                        # find smallest label of neighbors
-                        L = neighbors_labels
-                        labels[row][column] = min(L)
-        
-        # get amount of remaining labels
-        used_labels = []
-        label_amount = 1
-        for row in labels:
-            for column in row:
-                if column not in used_labels and column != 0:
-                    used_labels.append(column)
-                    label_amount += 1
-        
-        # clean up the labels to be 1 to label_amount
-        for row in range(len(labels)):
-            for column in range(len(labels[row])):
-                if labels[row][column] in used_labels:
-                    labels[row][column] = used_labels.index(labels[row][column]) + 1
+        # clean up
+        linked_short = []
+        skip = []
+        for i in range(len(linked)):
+            if i+1 not in skip:
+                for a in range(1, len(linked[i])):
+                    skip.append(linked[i][a])
+                linked_short.append(linked[i])
 
+        # paint
+        for i in range(len(linked_short)):
+            for item in linked_short[i]:
+                labels[labels==item] = i+1
         
-        return labels, label_amount-1
+        return labels, len(linked_short) # label_amount
     
     # find the center coordinate of each label
     def find_coords(self, data, labels, x1, y1, x2, y2):
@@ -225,53 +238,113 @@ class MapRecognition(Node):
 ###################################################################
 # waypoint creation should maybe move to the contruction_site file, since its very specificly for it
     # create waypoints
-    def create_waypoints(self, obstacles, robot_x, robot_y):
+    def create_waypoints(self, obstacles, x, y, x_a, y_a, x_b, y_b):
         waypoints = []
-        obstacles = np.asarray(obstacles)
 
-        # prepare and sort the received coords
-        np.sort(obstacles, axis=0)  # sort along y axis
+        # calculate the distances between the line of sight and the obstacles
+        dists = []
+        for coord in obstacles:
+            dists.append(self.dist(x, y, x_a, y_a, coord[1], coord[0]))
 
-        # print(obstacles)
-        
+        # sort obstacle coordinates from closest to farthest away from robot sight line (0°)
+        obstacles = np.asarray(obstacles)[np.argsort(np.asarray(dists))]
+
+        # f1 - dist on a to first and third obstacle
+        f1 = ( self.dist(x, y, x_b, y_b, obstacles[0][1], obstacles[0][0]) + self.dist(x, y, x_b, y_b, obstacles[2][1], obstacles[2][0]) ) / 2
+
+        # f2 - dist on a to second obstacle
+        f2 = self.dist(x, y, x_b, y_b, obstacles[1][1], obstacles[1][0])
+
+        # h1 - dist on b to first obstacle
+        h1 = sorted(dists)[0]
+
+        # h2 - dist on b to second obstacle
+        h2 = sorted(dists)[1]
+
+        # h3 - dist on b to third obstacle
+        h3 = sorted(dists)[2]
+
+
         # waypoint 1
-        x1 = obstacles[obstacles[:,0].tolist().index(max(obstacles[:,0])), 1] +3
-        y1 = robot_y
-        waypoints.append([y1, x1])
+        a1 = f1 +1
+        b1 = 0
+        angle1 = 0
+        waypoints.append([a1 * self.map.info.resolution, b1 * self.map.info.resolution, angle1])
 
         # waypoint 2
-        x2 = obstacles[obstacles[:,0].tolist().index(sorted(obstacles[:,0])[1]), 1]
-        y2 = obstacles[obstacles[:,0].tolist().index(max(obstacles[:,0])), 0]
-        waypoints.append([y2, x2])
+        a2 = f2 +1
+        b2 = h1
+        angle2 = 90
+        waypoints.append([a2 * self.map.info.resolution, b2 * self.map.info.resolution, angle2])
 
         # waypoint 3
-        x3 = x1 - 1 -3
-        y3 = obstacles[obstacles[:,0].tolist().index(sorted(obstacles[:,0])[1]), 0]
-        waypoints.append([y3, x3])
+        a3 = f1 -1
+        b3 = h2
+        angle3 = 90
+        waypoints.append([a3 * self.map.info.resolution, b3 * self.map.info.resolution, angle3])
 
         # waypoint 4
-        x4 = x2
-        y4 = obstacles[obstacles[:,0].tolist().index(min(obstacles[:,0])), 0]
-        waypoints.append([y4, x4])
+        a4 = f2 +1
+        b4 = h3
+        angle4 = 90
+        waypoints.append([a4 * self.map.info.resolution, b4 * self.map.info.resolution, angle4])
 
         # waypoint 5
-        x5 = x1 -3
-        y5 = y4 + (y2 - robot_y)
-        waypoints.append([y5, x5])
-
-        # sort waypoints
-        print(waypoints)
-        waypoints = sorted(waypoints, key=lambda x: x[0])
-        print(waypoints)
+        a5 = f1 +1
+        b5 = h3 + h1
+        angle5 = 180
+        waypoints.append([a5 * self.map.info.resolution, b5 * self.map.info.resolution, angle5])
 
         return waypoints
     
-    def convert_waypoints(self, waypoints):
-        for waypoint in range(len(waypoints)):
-            waypoints[waypoint][0] = self.map.info.origin.position.y + waypoints[waypoint][0] * self.map.info.resolution
-            waypoints[waypoint][1] = self.map.info.origin.position.x + waypoints[waypoint][1] * self.map.info.resolution
+    def get_rect(self, x, y, angle, a, b):
+        x_a = x + a * cos(angle / 57.3)
+        y_a = y + a * sin(angle / 57.3)
 
-        return waypoints
+        x_b = x + b * cos((angle + 90) / 57.3)
+        y_b = y + b * sin((angle + 90) / 57.3)
+
+        x_ab = x + a * cos(angle / 57.3) + b * cos((angle + 90) / 57.3)
+        y_ab = y + a * sin(angle / 57.3) + b * sin((angle + 90) / 57.3)
+
+        print(x, y, x_a, y_a, x_b, y_b, x_ab, y_ab)
+
+        return x, y, x_a, y_a, x_b, y_b, x_ab, y_ab
+
+    def get_big_rect(self, x, y, x_a, y_a, x_b, y_b, x_ab, y_ab):
+        x_min = int(min(x, x_a, x_b, x_ab))
+        x_max = int(max(x, x_a, x_b, x_ab))
+
+        y_min = int(min(y, y_a, y_b, y_ab))
+        y_max = int(max(y, y_a, y_b, y_ab))
+
+        print(x_min, y_min, x_max, y_max)
+
+        return x_min, y_min, x_max, y_max
+
+    def check_in_rect(self, point, rect):
+        # (0 < AM*AB < AB*AB) and (0 < AM*AD < AD*AD)
+        # ->
+        # (0 < (p_x-x)*(x_a-x) + (p_y-y)*(y_a-y) < (x_a-x)*(x_a-x) + (y_a-y)*(y_a-y)) and (0 < (p_x-x)*(x_b-x) + (p_y-y)*(y_b-y) < (x_b-x)*(x_b-x) + (y_b-y)*(y_b-y))
+
+        # point coords
+        p_x, p_y = point
+
+        # rect coords
+        x, y, x_a, y_a, x_b, y_b, x_ab, y_ab = rect
+
+        if (0 < (p_x-x)*(x_a-x) + (p_y-y)*(y_a-y) < (x_a-x)*(x_a-x) + (y_a-y)*(y_a-y)) and (0 < (p_x-x)*(x_b-x) + (p_y-y)*(y_b-y) < (x_b-x)*(x_b-x) + (y_b-y)*(y_b-y)):
+            return 1
+
+        else:
+            return 0
+
+    def dist(self, x, y, x_a, y_a, p_x, p_y):
+        angle = acos( ( (p_x-x)*(x_a-x) + (p_y-y)*(y_a-y) ) / ( sqrt( (p_x-x)**2 + (p_y-y)**2 ) * sqrt( (x_a-x)**2 + (y_a-y)**2 ) ) )
+
+        d = sqrt( (p_x-x)**2 + (p_y-y)**2 ) * sin(angle)
+
+        return d
 ###################################################################
 
 
@@ -282,4 +355,4 @@ class MapRecognition(Node):
         position = get_current_pose.get_position()
         get_current_pose.destroy_node()
 
-        return position.pose.position.x, position.pose.position.y, position.pose.orientation.z, position.pose.orientation.w
+        return position.pose.position.x, position.pose.position.y
