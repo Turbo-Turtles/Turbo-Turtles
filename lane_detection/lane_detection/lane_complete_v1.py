@@ -108,7 +108,7 @@ class LaneDetectionNode(Node):
         self.pub_progress = self.create_publisher(Progress, '/mission_progress', 1)
 
         self.state = None
-        self.state = None
+        self.do = None
         self.counter = 0
         self.counter_set = 10
         self.parking_state = 0
