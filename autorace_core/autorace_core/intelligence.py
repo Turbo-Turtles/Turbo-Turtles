@@ -72,6 +72,13 @@ class Intelligence(Node):
         # if a turn is completed
         elif msg.sender == "turn":
             self.lane_following_active = True
+
+        # if parking is completed
+        elif msg.sender == "parking":
+            self.lane_following_active = True
+
+            self.active_section += 1
+            self.section_changed = True
     
     def sign_callback(self, msg):
         # if active section traffic
@@ -82,9 +89,9 @@ class Intelligence(Node):
         # if intersection sign : set actve section intersection
         if self.active_section == 0:
             if msg.sign == "traffic":
-                if msg.state == 0 or msg.state == 1:
+                if msg.state == 0 or msg.state == 1: # orange or red
                     self.lane_following_active = False
-                elif msg.state == 2:
+                elif msg.state == 2:                 # green
                     self.lane_following_active = True
             
             if msg.sign == "intersection":
@@ -118,15 +125,15 @@ class Intelligence(Node):
                 self.active_section += 1
                 self.section_changed = True
 
-                self.turn = 2
+                self.lane_following_active = False
 
         # if active section parking
         # if arrow left : set active section crossing, left to lane following
-        if self.active_section == 3:
-            if msg.sign == "left":
-                self.active_section += 1
+        # if self.active_section == 3:
+        #     if msg.sign == "left":
+        #         self.active_section += 1
 
-                self.turn = 2
+        #         self.turn = 2
 
         # if active section crossing
         # if crossing closed : no lane following
