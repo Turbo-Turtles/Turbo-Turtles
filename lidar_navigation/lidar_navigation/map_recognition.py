@@ -1,14 +1,10 @@
-from lidar_navigation.position_listener import PositionListener
-
-import matplotlib.pyplot as plt
-import numpy as np
-
 import rclpy
 from rclpy.node import Node
 
 from nav_msgs.msg import OccupancyGrid
 
-from geometry_msgs.msg import PoseStamped
+import numpy as np
+import matplotlib.pyplot as plt
 
 from math import sqrt, cos, acos, sin
 
@@ -64,9 +60,9 @@ class MapRecognition(Node):
 ###################################################################
 # maybe this should be in construction_site file and be replaced by get_coords
 # the returned coordinates can than be specifically used in the receiving scipt
-    def get_waypoints(self):
+    def get_waypoints(self, x, y):
         # get location
-        x, y = self.get_location()
+        # x, y = self.get_location()
 
         # calculate coords of the robot for matplotlib coordinate system
         robot_x, robot_y = (x - self.map.info.origin.position.x) / self.map.info.resolution, (y - self.map.info.origin.position.y) / self.map.info.resolution
@@ -266,34 +262,34 @@ class MapRecognition(Node):
 
 
         # waypoint 1
-        a1 = f1 +1
+        a1 = f1
         b1 = 0
         angle1 = 0
-        waypoints.append([a1 * self.map.info.resolution, b1 * self.map.info.resolution, angle1])
+        waypoints.append([a1 * self.map.info.resolution + 0.05, b1 * self.map.info.resolution, angle1])
 
         # waypoint 2
-        a2 = f2 +1
+        a2 = f2
         b2 = h1
         angle2 = 90
-        waypoints.append([a2 * self.map.info.resolution, b2 * self.map.info.resolution, angle2])
+        waypoints.append([a2 * self.map.info.resolution + 0.05, b2 * self.map.info.resolution, angle2])
 
         # waypoint 3
-        a3 = f1 -1
+        a3 = f1
         b3 = h2
         angle3 = 90
-        waypoints.append([a3 * self.map.info.resolution, b3 * self.map.info.resolution, angle3])
+        waypoints.append([a3 * self.map.info.resolution - 0.05, b3 * self.map.info.resolution, angle3])
 
         # waypoint 4
-        a4 = f2 +1
+        a4 = f2
         b4 = h3
         angle4 = 90
-        waypoints.append([a4 * self.map.info.resolution, b4 * self.map.info.resolution, angle4])
+        waypoints.append([a4 * self.map.info.resolution + 0.05, b4 * self.map.info.resolution, angle4])
 
         # waypoint 5
-        a5 = f1 +1
+        a5 = f1
         b5 = h3 + h1
         angle5 = 180
-        waypoints.append([a5 * self.map.info.resolution, b5 * self.map.info.resolution, angle5])
+        waypoints.append([a5 * self.map.info.resolution + 0.05, b5 * self.map.info.resolution, angle5])
 
         return waypoints
     
@@ -346,13 +342,3 @@ class MapRecognition(Node):
 
         return d
 ###################################################################
-
-
-    def get_location(self):
-        # get current loaction
-        get_current_pose = PositionListener()
-        rclpy.spin_once(get_current_pose)
-        position = get_current_pose.get_position()
-        get_current_pose.destroy_node()
-
-        return position.pose.position.x, position.pose.position.y

@@ -75,7 +75,7 @@ class ConstructionMission(Node):
 
 ##############################
 # waypoints
-            waypoints = self.get_waypoints(self.get_angle(z, w))
+            waypoints = self.get_waypoints(self.get_angle(z, w), x, y)
             
             for waypoint in waypoints:
                 print(waypoint)
@@ -150,12 +150,12 @@ class ConstructionMission(Node):
 
             self.navigator_.lifecycleShutdown()
 
-    def get_waypoints(self, angle):
+    def get_waypoints(self, angle, x, y):
         # get waypoints
         get_wps = MapRecognition(angle)
         while not get_wps.success():
             rclpy.spin_once(get_wps)
-        waypoints = get_wps.get_waypoints()
+        waypoints = get_wps.get_waypoints(x, y)
 
         return waypoints
     

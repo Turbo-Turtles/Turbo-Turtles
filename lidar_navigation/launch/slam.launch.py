@@ -8,7 +8,7 @@ from launch.launch_description_sources import PythonLaunchDescriptionSource
 def generate_launch_description():
     config_dir = os.path.join(get_package_share_directory('lidar_navigation'),'config')
     map_file = os.path.join(config_dir, 'tb3_map.yaml')
-    param_file = os.path.join(config_dir, 'burger_params.yaml')
+    param_file = os.path.join(config_dir, 'nav2.yaml')
     rviz_file = os.path.join(config_dir, 'navigation.rviz')
 
     return LaunchDescription([
@@ -20,13 +20,6 @@ def generate_launch_description():
                 'map':map_file,
                 'use_sim_time':'False',
                 'params_file':param_file,
-                # 'pose': {
-                #     'x_pose':'1.0',
-                #     'y_pose':'2.0',
-                # }
-                # 'x_pose':'0.8',
-                # 'y_pose':'-1.7',
-                # 'yaw':,
             }.items(),
         ),
 
