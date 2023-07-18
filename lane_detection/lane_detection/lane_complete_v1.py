@@ -125,22 +125,50 @@ class LaneDetectionNode(Node):
                 self.do = 'lane'
             else:
                 self.do = None
+                # stop roboter
+                twist_msg = Twist()
+                twist_msg.linear.x = 0.0
+                twist_msg.angular.z = 0.0
+
+                # Publish the twist message to control the TurtleBot3
+                self.pub_vel_cmd.publish(twist_msg)
 
         if self.state.mission_name == 'right':
             if self.state.complete == True:
                 self.do = 'right'
             else:
                 self.do = None
+                # stop roboter
+                twist_msg = Twist()
+                twist_msg.linear.x = 0.0
+                twist_msg.angular.z = 0.0
+
+                # Publish the twist message to control the TurtleBot3
+                self.pub_vel_cmd.publish(twist_msg)
         elif self.state.mission_name == 'left':
             if self.state.complete == True:
                 self.do = 'left'
             else:
                 self.do = None
+                # stop roboter
+                twist_msg = Twist()
+                twist_msg.linear.x = 0.0
+                twist_msg.angular.z = 0.0
+
+                # Publish the twist message to control the TurtleBot3
+                self.pub_vel_cmd.publish(twist_msg)
         elif self.state.mission_name == 'parking':
             if self.state.complete == True:
                 self.do = 'parking'
             else:
                 self.do = None
+                # stop roboter
+                twist_msg = Twist()
+                twist_msg.linear.x = 0.0
+                twist_msg.angular.z = 0.0
+
+                # Publish the twist message to control the TurtleBot3
+                self.pub_vel_cmd.publish(twist_msg)
 
 
     def image_callback(self, img_msg):
