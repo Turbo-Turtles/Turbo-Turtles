@@ -247,12 +247,12 @@ class LaneDetectionNode(Node):
 
                 self.driving(yellow_lane_line_R, yellow_lane_line_L, result)
 
-                if parking_line is not None:
+                if parking_line != None:
                     self.parking_state = 2
             case 2:
                 self.spot_info = None
                 self.spot_info = self.get_lot() # get spot_info
-                if self.spot_info is not None:
+                if self.spot_info != None:
                     self.parking_state = 3
             case 3:
                 if self.spot_info == 'left':
@@ -318,7 +318,7 @@ class LaneDetectionNode(Node):
 
                 self.driving(yellow_lane_line_R, yellow_lane_line_L, result)
 
-                if parking_line is not None:
+                if parking_line != None:
                     self.parking_state = 9
             case 9:
                 self.left_turn()
@@ -677,7 +677,7 @@ class LaneDetectionNode(Node):
     
 
     def draw_lane_line(self, image, lane):
-        if lane is not None:
+        if lane != None:
             #cv2.line(image, lane[0], lane[1], (255, 150, 0), 10)
             pass
         
@@ -691,7 +691,7 @@ class LaneDetectionNode(Node):
         velocity = max_vel
         steering_angle = 0.0
 
-        if white_lane is not None and yellow_lane is not None:
+        if white_lane != None and yellow_lane != None:
             # Calculate the center of the lane
             
             w1, w2 = white_lane
@@ -710,7 +710,7 @@ class LaneDetectionNode(Node):
 
             velocity, steering_angle, img = self.clac_driving_parameters(max_vel, kp, deviation, img, center_lane)
 
-        elif white_lane is None and yellow_lane is not None:
+        elif white_lane is None and yellow_lane != None:
             y1, y2 = yellow_lane
 
             deviation = (y2[0] - y1[0])/2
@@ -722,7 +722,7 @@ class LaneDetectionNode(Node):
 
             velocity, steering_angle, img = self.clac_driving_parameters(max_vel, kp, deviation, img, center_lane)
 
-        elif yellow_lane is None and white_lane is not None:
+        elif yellow_lane is None and white_lane != None:
             w1, w2 = white_lane
 
             deviation = (w2[0] - w1[0])/2
