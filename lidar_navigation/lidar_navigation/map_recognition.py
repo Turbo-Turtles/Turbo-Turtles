@@ -265,31 +265,31 @@ class MapRecognition(Node):
         a1 = f1
         b1 = 0
         angle1 = 0
-        waypoints.append([a1 * self.map.info.resolution + 0.05, b1 * self.map.info.resolution, angle1])
+        waypoints.append([a1 * self.map.info.resolution + 0.05, b1 * self.map.info.resolution + 0.05, angle1])
 
         # waypoint 2
         a2 = f2
         b2 = h1
         angle2 = 90
-        waypoints.append([a2 * self.map.info.resolution + 0.05, b2 * self.map.info.resolution, angle2])
+        waypoints.append([a2 * self.map.info.resolution + 0.01, b2 * self.map.info.resolution + 0.05, angle2])
 
         # waypoint 3
         a3 = f1
         b3 = h2
         angle3 = 90
-        waypoints.append([a3 * self.map.info.resolution - 0.05, b3 * self.map.info.resolution, angle3])
+        waypoints.append([a3 * self.map.info.resolution - 0.08, b3 * self.map.info.resolution + 0.05, angle3])
 
         # waypoint 4
         a4 = f2
         b4 = h3
         angle4 = 90
-        waypoints.append([a4 * self.map.info.resolution + 0.05, b4 * self.map.info.resolution, angle4])
+        waypoints.append([a4 * self.map.info.resolution + 0.01, b4 * self.map.info.resolution + 0.05, angle4])
 
         # waypoint 5
         a5 = f1
         b5 = h3 + h1
         angle5 = 180
-        waypoints.append([a5 * self.map.info.resolution + 0.05, b5 * self.map.info.resolution, angle5])
+        waypoints.append([a5 * self.map.info.resolution - 0.2, b5 * self.map.info.resolution + 0.05, angle5])
 
         return waypoints
     

@@ -127,7 +127,7 @@ class TunnelMission(Node):
                 progress_msg.sender = "nav2"
                 progress_msg.state = False
 
-            self.pub_progress(progress_msg)
+            self.pub_progress.publish(progress_msg)
 
             self.navigator_.lifecycleShutdown()
 
