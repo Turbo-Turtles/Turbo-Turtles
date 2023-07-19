@@ -674,7 +674,12 @@ class LaneDetectionNode(Node):
         x1 = int((y1 - coeffs[1]) / coeffs[0])
         x2 = int((y2 - coeffs[1]) / coeffs[0])
 
-        return ((x1, y1), (x2, y2))
+        slope = (y2 - y1) / (x2 - x1 + 1e-6)
+    
+        if slope < 0.7 and slope > -0.7:
+           return None
+        else:
+            return ((x1, y1), (x2, y2))
     
 
     def draw_lane_line(self, image, lane):
@@ -687,8 +692,8 @@ class LaneDetectionNode(Node):
     
     def driving(self, white_lane, yellow_lane, img):
         # Define control parameters
-        kp = 0.02  # Proportional gain
-        max_vel = 0.1  # Constant velocity
+        kp = 0.018  # Proportional gain
+        max_vel = 0.15  # Constant velocity
         velocity = max_vel
         steering_angle = 0.0
 
@@ -714,7 +719,7 @@ class LaneDetectionNode(Node):
         elif white_lane is None and yellow_lane != None:
             y1, y2 = yellow_lane
 
-            deviation = (y2[0] - y1[0])/2
+            deviation = (y2[0] - y1[0])/1.8
             if deviation < 0:
                 deviation = 0
                 self.first = True
@@ -726,7 +731,7 @@ class LaneDetectionNode(Node):
         elif yellow_lane is None and white_lane != None:
             w1, w2 = white_lane
 
-            deviation = (w2[0] - w1[0])/2
+            deviation = (w2[0] - w1[0])/1.8
             if deviation > 0:
                 deviation = 0
                 self.first = True
