@@ -777,7 +777,7 @@ class LaneDetectionNode(Node):
             deviation = self.old_deviation
 
         # Calculate the desired steering angle based on the deviation and control parameters
-        if deviation < 100 and deviation > -100:
+        if deviation <= 100 and deviation >= -100:
             steering_angle = kp * -deviation
             velocity = max_vel
         elif deviation > 100:
