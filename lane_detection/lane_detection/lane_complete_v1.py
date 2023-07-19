@@ -39,7 +39,8 @@ class LaneDetectionNode(Node):
     cv2.createTrackbar('Sat_yellow_max','yellow_threshold',0,255,nothing)
     cv2.createTrackbar('Val_yellow_min','yellow_threshold',0,255,nothing)
     cv2.createTrackbar('Val_yellow_max','yellow_threshold',0,255,nothing)
-    
+
+    '''
     # Set default value for HSV trackbars.  :: Rosbag: Turbo-Turtles_record_05
     cv2.setTrackbarPos('Hue_white_min', 'white_threshold', 0)
     cv2.setTrackbarPos('Hue_white_max', 'white_threshold', 179)
@@ -54,23 +55,23 @@ class LaneDetectionNode(Node):
     cv2.setTrackbarPos('Sat_yellow_max','yellow_threshold', 220)
     cv2.setTrackbarPos('Val_yellow_min','yellow_threshold', 90)
     cv2.setTrackbarPos('Val_yellow_max','yellow_threshold', 240)
-    
     '''
+    
     # Set default value for HSV trackbars.  :: Rosbag: Turbo-Turtles_TurboTurtles
     cv2.setTrackbarPos('Hue_white_min', 'white_threshold', 0)
     cv2.setTrackbarPos('Hue_white_max', 'white_threshold', 179)
     cv2.setTrackbarPos('Sat_white_min', 'white_threshold', 0)
-    cv2.setTrackbarPos('Sat_white_max', 'white_threshold', 20)
-    cv2.setTrackbarPos('Val_white_min', 'white_threshold', 220)
+    cv2.setTrackbarPos('Sat_white_max', 'white_threshold', 50)
+    cv2.setTrackbarPos('Val_white_min', 'white_threshold', 150)
     cv2.setTrackbarPos('Val_white_max', 'white_threshold', 255)
 
-    cv2.setTrackbarPos('Hue_yellow_min','yellow_threshold', 30)
+    cv2.setTrackbarPos('Hue_yellow_min','yellow_threshold', 20)
     cv2.setTrackbarPos('Hue_yellow_max','yellow_threshold', 40)
     cv2.setTrackbarPos('Sat_yellow_min','yellow_threshold', 130)
-    cv2.setTrackbarPos('Sat_yellow_max','yellow_threshold', 255)
-    cv2.setTrackbarPos('Val_yellow_min','yellow_threshold', 110)
+    cv2.setTrackbarPos('Sat_yellow_max','yellow_threshold', 230)
+    cv2.setTrackbarPos('Val_yellow_min','yellow_threshold', 60)
     cv2.setTrackbarPos('Val_yellow_max','yellow_threshold', 255)
-    '''
+    
 
 
     # create trackbars for image cropping
@@ -434,8 +435,8 @@ class LaneDetectionNode(Node):
         try:
             for line in lines:
                 x1, y1, x2, y2 = line[0]
-                slope = (y2 - y1) / (x2 - x1 + 1e-6)  # Avoid division by zero
-                if slope > -0.5:         # maybe change parameter
+                slope = (x2 - x1) / (y2 - y1 + 1e-6)  # Avoid division by zero
+                if slope > -0.5 and slope < 0.5:         # maybe change parameter
                     w_lines.append(line[0])
         except:
             w_lines = []
@@ -503,8 +504,8 @@ class LaneDetectionNode(Node):
         try:
             for line in lines:
                 x1, y1, x2, y2 = line[0]
-                slope = (y2 - y1) / (x2 - x1 + 1e-6)  # Avoid division by zero
-                if slope < 0.5:         # maybe change parameter
+                slope = (x2 - x1) / (y2 - y1 + 1e-6)  # Avoid division by zero
+                if slope < 0.5 and slope > -0.5:         # maybe change parameter
                     y_lines.append(line[0])
         except:
             y_lines = []
@@ -572,8 +573,8 @@ class LaneDetectionNode(Node):
         try:
             for line in lines:
                 x1, y1, x2, y2 = line[0]
-                slope = (y2 - y1) / (x2 - x1 + 1e-6)  # Avoid division by zero
-                if slope > -0.5:         # maybe change parameter
+                slope = (x2 - x1) / (y2 - y1 + 1e-6)  # Avoid division by zero
+                if slope < 0.5 and slope > -0.5:         # maybe change parameter
                     y_lines.append(line[0])
         except:
             y_lines = []
