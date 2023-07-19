@@ -81,7 +81,7 @@ class TunnelMission(Node):
             goal_poses.append(tunnel_entry)
 
             # create tunnel exit waypoint
-            tunnel_exit = self.get_relative_coords(self.start_pose, -0.5, 0)
+            tunnel_exit = self.get_relative_coords(self.start_pose, -0.2, 0)
             goal_poses.append(tunnel_exit)
 
             nav_start = self.navigator_.get_clock().now()

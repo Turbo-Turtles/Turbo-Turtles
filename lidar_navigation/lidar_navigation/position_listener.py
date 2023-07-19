@@ -5,7 +5,6 @@ from rclpy.node import Node
 from nav_msgs.msg import Odometry
 from geometry_msgs.msg import PoseStamped
 
-# classes start
 
 class PositionListener(Node):
     def __init__(self):

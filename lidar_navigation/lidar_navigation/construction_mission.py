@@ -73,8 +73,8 @@ class ConstructionMission(Node):
             # set goal posees to follow
             goal_poses = []
 
-##############################
-# waypoints
+            ##############################
+            # waypoints
             waypoints = self.get_waypoints(self.get_angle(z, w), x, y)
             
             for waypoint in waypoints:
@@ -87,8 +87,8 @@ class ConstructionMission(Node):
                 # debug only
                 print("\n", initial_pose.pose.position.x, initial_pose.pose.position.y)
                 print(next_pose.pose.position.x, next_pose.pose.position.y)
-#
-###################################
+            #
+            ###################################
 
             nav_start = self.navigator_.get_clock().now()
             self.navigator_.followWaypoints(goal_poses)

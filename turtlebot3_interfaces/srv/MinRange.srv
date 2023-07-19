@@ -1,5 +1,0 @@
-# Wants area (0-355) and returns minimal laser scan range in the following 90 degree
-
-uint32 area
----
-float64 min_range

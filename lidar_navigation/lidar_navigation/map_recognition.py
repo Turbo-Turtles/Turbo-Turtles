@@ -57,9 +57,7 @@ class MapRecognition(Node):
         else:
             return 0
 
-###################################################################
-# maybe this should be in construction_site file and be replaced by get_coords
-# the returned coordinates can than be specifically used in the receiving scipt
+    # the returned coordinates can than be specifically used in the receiving scipt
     def get_waypoints(self, x, y):
         # get location
         # x, y = self.get_location()
@@ -93,8 +91,10 @@ class MapRecognition(Node):
         # set and visualize waypoints
         waypoints = self.create_waypoints(coords, robot_x, robot_y, x_a, y_a, x_b, y_b)
 
-###########
-# not needed -> can be deleted after successful tests
+        ###################
+        # creates plot of the recognized map
+        # after the plot window is closed, the execution starts
+        # (can be deleted)
 
         # paint stuff
         data[int(robot_y)][int(robot_x)] = self.bot
@@ -114,10 +114,10 @@ class MapRecognition(Node):
         ax.invert_yaxis()
         plt.show()
 
-###########
+        ###################
 
         return waypoints
-###################################################################
+
 
     def prepare_data(self, data, M, N):
         new_data = np.zeros((M,N,3))
@@ -135,8 +135,8 @@ class MapRecognition(Node):
         return new_data
 
 
-###################################################################
-# two pass algorithm with coords for all obstacles
+    ###################################################################
+    # two pass algorithm with coords for all obstacles
     def two_pass(self, data, M, N, x1, y1, x2, y2):
         linked = []
         labels = np.zeros((M,N))
@@ -229,10 +229,8 @@ class MapRecognition(Node):
 
 
         return valid_coords
-###################################################################
+    ###################################################################
 
-###################################################################
-# waypoint creation should maybe move to the contruction_site file, since its very specificly for it
     # create waypoints
     def create_waypoints(self, obstacles, x, y, x_a, y_a, x_b, y_b):
         waypoints = []
@@ -341,4 +339,3 @@ class MapRecognition(Node):
         d = sqrt( (p_x-x)**2 + (p_y-y)**2 ) * sin(angle)
 
         return d
-###################################################################
