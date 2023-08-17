@@ -12,8 +12,9 @@ But you can learn from it!
 
 ### Tips
 
-- instead of a slam approach with the lidar, you should stick to little prerecorded snippets/maps and use amcl, because if the bot hits something even once, the entire slam map is ruined and not usable.
+- instead of a slam approach with the lidar, you should stick to little prerecorded snippets/maps and use amcl, because if the bot hits something even once, the entire slam map is ruined and not usable
 - remember to train your image recognition with the correct image resolution
-- do not create a giant one-file lane_detection, rather more specific smaller ones
+- do not create a giant one-file lane_detection, rather more specific smaller ones for the different tasks
+
 And the last and most important tip:
 - if you work in a team, take care so everyone is working from the beginning and create an integreation plan early so everyone can shape his code towards the interfaces and spot better solutions
