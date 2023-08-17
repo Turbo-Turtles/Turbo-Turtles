@@ -7,9 +7,15 @@ Can be imported like this: \
 `from turtlebot3_interfaces.srv import ...`
 
 ### msg
-- Drive
-  - float64 speed
-  - float64 turn
+- Mission
+  - string mission_name
+  - bool complete
+- Progress
+  - string sender
+  - bool state
+- Sign
+  - string sign
+  - int8 state
 
 
 ### srv
