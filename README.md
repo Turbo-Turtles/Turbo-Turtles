@@ -1,7 +1,15 @@
-# Robotics Project 2023
+# [CLOSED ]Robotics Project 2023
 
 Project by Georg Forberger, Marvin Menzel, Robert Schneider \
 Teamname: Turbo-Turtles
+
+## Important note
+
+The poject is discontinued. And not working properly, but you can learn from the code.
+
+Problems were a lack of motivation in some members of the team and pobably some unoptimal approaches.
+
+For example in a competetive setting it was unnecessary to always generate the map from scratch in every run. A better and more stable solution would have been to use a premade map without obstacles.
 
 ## Overview
 
